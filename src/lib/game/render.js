@@ -87,6 +87,7 @@ export function resetEffects() {
   shake = 0;
   flashScreen = 0;
   fade = null;
+  lastWorld = -1;
 }
 
 const ITEM_NAMES = { meat: '烤肉 +♥', gem: '寶石 +1000', magnet: '磁鐵！', shield: '護盾！' };
@@ -242,6 +243,11 @@ function drawFrame(g, sheet, name, x, y, h, facing, { fallback = 'idle', flash =
  * 跑者的動作 → 圖集的格子、旋轉、往下偏移。
  * 跑酷專用的格子（run3／run4、slide、roll、goal）交件後就自動改用，還沒交之前用虛擬闖天下的格子代替。
  */
+// 跑步循環：run1 右腳著地 → run2 交錯 → run3 左腳著地 → run4 交錯；8 格時在每兩格中間插 run5～run8
+const RUN4 = ['run1', 'run2', 'run3', 'run4'];
+const RUN8 = ['run1', 'run5', 'run2', 'run6', 'run3', 'run7', 'run4', 'run8'];
+const STEP_BOB = { run1: 2, run3: 2, run2: -3, run4: -3 };
+
 function runnerPose(act, t, speed = 7, frames = []) {
   const has = (f) => frames.includes(f);
   const cycle = Math.max(3, Math.round(40 / speed));
@@ -250,8 +256,12 @@ function runnerPose(act, t, speed = 7, frames = []) {
     case 'ready':
       return { name: 'idle' };
     case 'run': {
-      const run = has('run3') && has('run4') ? ['run1', 'run2', 'run3', 'run4'] : ['run1', 'run2'];
-      return { name: run[Math.floor(t / cycle) % run.length] };
+      // 有中間格（run5～run8）就是 8 格循環，換得快一倍；不然 4 格（或闖天下的 2 格）
+      const run = RUN8.every(has) ? RUN8 : has('run3') && has('run4') ? RUN4 : ['run1', 'run2'];
+      const per = Math.max(2, Math.round((cycle * 4) / run.length));
+      const name = run[Math.floor(t / per) % run.length];
+      // 步伐的上下起伏：腳著地那格低一點、兩腳交錯那格高一點
+      return { name, dy: STEP_BOB[name] ?? 0 };
     }
     case 'jump':
     case 'spring':
@@ -302,12 +312,13 @@ function drawRunnerSprite(g, character, act, actT, x, y, { h = CELL_H, alpha = 1
 // ---------- 背景與跑道 ----------
 
 let fade = null; // 換場景（無盡模式）時淡入：{ from, alpha }
-let lastWorld = 0;
+let lastWorld = -1;
 
 /** 背景：遠景、中景、後面那一層地板（只畫到跑道高度，下面是深淵） */
 function drawBackdrop(g, world, sub, cam) {
+  // 換場景（無盡模式跑進下一個大關）才淡入；剛開始一關（lastWorld = -1）直接畫
   if (world !== lastWorld) {
-    fade = { from: lastWorld, sub, alpha: 1 };
+    if (lastWorld >= 0) fade = { from: lastWorld, sub, alpha: 1 };
     lastWorld = world;
   }
   g.save();
@@ -346,7 +357,34 @@ function shade(hex, k) {
   return `rgb(${ch(n >> 16)},${ch((n >> 8) & 255)},${ch(n & 255)})`;
 }
 
-// 跑道表面的花紋：從那一關的地板圖（stages/<大關>-<n>/ground.webp）裁下面一段，當作重複的貼圖
+// 跑酷道具的圖（public/props/runner/，清單在 sheets.json 的 runner）。沒有圖的就用下面程式畫的。
+const runnerArt = (name) => (SHEETS.runner?.includes(name) ? loadImage(asset(`props/runner/${name}.webp`)) : null);
+
+// 跑道頂面的圖（512×128，上緣 16px 是踩的那一條）：縮成一半當橫向重複的貼圖；
+// 下面的斷面用圖的下半部重複往下鋪
+const PLATFORM_SCALE = 0.5;
+const platformCache = new Map();
+function platformPatterns(g, world) {
+  const id = WORLDS[world].id;
+  if (platformCache.has(id)) return platformCache.get(id);
+  const img = runnerArt(`${id}-platform`);
+  if (!ready(img)) return null;
+  const w = img.naturalWidth * PLATFORM_SCALE;
+  const h = img.naturalHeight * PLATFORM_SCALE;
+  const top = document.createElement('canvas');
+  top.width = w;
+  top.height = h;
+  top.getContext('2d').drawImage(img, 0, 0, w, h);
+  const fill = document.createElement('canvas');
+  fill.width = w;
+  fill.height = h / 2;
+  fill.getContext('2d').drawImage(img, 0, img.naturalHeight / 2, img.naturalWidth, img.naturalHeight / 2, 0, 0, w, h / 2);
+  const p = { top: g.createPattern(top, 'repeat-x'), fill: g.createPattern(fill, 'repeat'), w, h };
+  platformCache.set(id, p);
+  return p;
+}
+
+// 跑道表面的花紋（沒有跑道頂面的圖時用）：從那一關的地板圖（stages/<大關>-<n>/ground.webp）裁下面一段，當作重複的貼圖
 const patterns = new Map();
 function groundPattern(g, world, sub) {
   const key = `${WORLDS[world].id}-${sub + 1}`;
@@ -366,6 +404,56 @@ function groundPattern(g, world, sub) {
 }
 
 function drawSolids(g, v, world, sub) {
+  const art = platformPatterns(g, world);
+  if (!art) return drawSolidsFallback(g, v, world, sub);
+  // 圖案跟著跑道捲（不是跟著畫面）
+  const off = -(v.cam % art.w);
+  for (const s of v.solids) {
+    const x = Math.round(s.x0 - v.cam);
+    const x1 = Math.round(s.x1 - v.cam);
+    const width = x1 - x;
+    if (width <= 0) continue;
+    const y = s.y - 3;
+    const bottom = s.oneway ? y + art.h * 0.45 : H;
+    g.save();
+    g.beginPath();
+    g.rect(x, y, width, bottom - y);
+    g.clip();
+    if (s.oneway) {
+      // 浮台：只有薄薄一片（頂面圖的上半）
+      g.translate(off, y);
+      g.fillStyle = art.top;
+      g.fillRect(x - off, 0, width, art.h * 0.45);
+      g.translate(-off, -y);
+      const shade = g.createLinearGradient(0, y + art.h * 0.2, 0, bottom);
+      shade.addColorStop(0, 'rgba(10,8,20,0)');
+      shade.addColorStop(1, 'rgba(10,8,20,0.45)');
+      g.fillStyle = shade;
+      g.fillRect(x, y, width, bottom - y);
+    } else {
+      // 地面：頂面圖＋下面的斷面一路鋪到畫面底，越下面越暗
+      g.translate(off, y + art.h);
+      g.fillStyle = art.fill;
+      g.fillRect(x - off, 0, width, H - y);
+      g.translate(0, -art.h);
+      g.fillStyle = art.top;
+      g.fillRect(x - off, 0, width, art.h);
+      g.translate(-off, -y);
+      const shade = g.createLinearGradient(0, y + art.h * 0.5, 0, H);
+      shade.addColorStop(0, 'rgba(10,8,20,0)');
+      shade.addColorStop(1, 'rgba(10,8,20,0.7)');
+      g.fillStyle = shade;
+      g.fillRect(x, y + art.h * 0.5, width, H);
+    }
+    g.restore();
+    // 兩側的邊
+    g.fillStyle = 'rgba(15,12,22,0.55)';
+    g.fillRect(x, y, 3, bottom - y);
+    g.fillRect(x1 - 3, y, 3, bottom - y);
+  }
+}
+
+function drawSolidsFallback(g, v, world, sub) {
   const w = WORLDS[world];
   const pat = groundPattern(g, world, sub);
   const lip = shade(w.ground[0], 0.35);
@@ -430,8 +518,16 @@ function drawSolids(g, v, world, sub) {
 function drawGoal(g, v) {
   if (v.goal == null) return;
   const x = v.goal - v.cam;
-  if (x < -100 || x > W + 100) return;
+  if (x < -200 || x > W + 200) return;
   const y = GROUND;
+  const img = runnerArt('goal');
+  if (ready(img)) {
+    // 512×512，旗門底端在 y=511：畫 260 寬，中心在終點線右邊一點
+    const size = 260;
+    g.drawImage(img, x + 80 - size / 2, y - size * (511 / 512), size, size);
+    outlinedText(g, 'GOAL', x + 80, y - size * 0.98, 30, '#ffd84a');
+    return;
+  }
   // 兩根柱子＋格子旗布條
   g.fillStyle = '#f5efdf';
   g.fillRect(x - 6, y - 210, 12, 210);
@@ -447,6 +543,21 @@ function drawGoal(g, v) {
 
 function drawCoins(g, v) {
   const spin = Math.abs(Math.cos(frame * 0.09));
+  const face = runnerArt('coin');
+  const side = runnerArt('coin-side');
+  if (ready(face) && ready(side)) {
+    // 轉的時候正面左右壓扁，轉到側面時換成側面圖
+    const img = spin > 0.3 ? face : side;
+    const sx = spin > 0.3 ? spin : 1;
+    for (const [cx, cy] of v.coins_at) {
+      g.save();
+      g.translate(cx - v.cam, cy);
+      g.scale(sx, 1);
+      g.drawImage(img, -15, -15, 30, 30);
+      g.restore();
+    }
+    return;
+  }
   for (const [cx, cy] of v.coins_at) {
     const x = cx - v.cam;
     g.save();
@@ -484,8 +595,16 @@ function drawCrates(g, v, world) {
 }
 
 function drawSprings(g, v) {
+  const up = runnerArt('spring');
+  const down = runnerArt('spring-pressed');
   for (const s of v.springs) {
     const x = s.x - v.cam;
+    const img = s.t > 0 ? down : up;
+    if (ready(img)) {
+      // 128×96，底端 y=95：畫 64 寬
+      g.drawImage(img, x - 32, s.y - 48 * (95 / 96), 64, 48);
+      continue;
+    }
     const squash = s.t > 0 ? 10 : 0;
     g.fillStyle = '#7a7f8c';
     g.fillRect(x - 22, s.y - 8, 44, 8);
@@ -501,10 +620,69 @@ function drawSprings(g, v) {
   }
 }
 
+/** 機關有圖就畫圖（回傳 true），沒圖回傳 false 改用程式畫的 */
+function drawObstacleArt(g, o, x, id) {
+  const cx = x + o.w / 2;
+  const bottom = o.y + o.h;
+  if (o.kind === 'spike') {
+    // 128×96，底部貼齊下緣：畫 64 寬（比碰撞範圍 44 寬一點，看起來比較兇）
+    const img = runnerArt(`${id}-spike`);
+    if (!ready(img)) return false;
+    g.drawImage(img, cx - 32, bottom - 48, 64, 48);
+    return true;
+  }
+  if (o.kind === 'bar') {
+    // 160×160：下半是擋板、上面是鏈子。擋板底對齊橫桿底，鏈子（圖最上面那一段）一路往上接到畫面頂
+    const img = runnerArt(`${id}-bar`);
+    if (!ready(img)) return false;
+    const size = 92;
+    const top = bottom - size;
+    g.drawImage(img, cx - size / 2, top, size, size);
+    const strip = 18;
+    for (let y = top - strip; y > -strip; y -= strip) {
+      g.drawImage(img, 0, 0, 160, 160 * (strip / size), cx - size / 2, y, size, strip);
+    }
+    return true;
+  }
+  if (o.kind === 'icicle') {
+    const img = runnerArt('ice-icicle');
+    if (!ready(img)) return false;
+    g.drawImage(img, cx - 18, o.y - 4, 36, 72);
+    return true;
+  }
+  if (o.kind === 'geyser') {
+    const img = runnerArt('mine-geyser');
+    if (!ready(img)) return false;
+    g.fillStyle = '#3a2418';
+    rr(g, x - 6, bottom - 14, o.w + 12, 14, 4);
+    g.fill();
+    if (o.on) {
+      // 96×384，噴口底端 y=383：高度跟碰撞範圍一樣，左右抖一點
+      const h = o.h + 6;
+      const w = h * (96 / 384);
+      g.save();
+      g.translate(cx + Math.sin(frame * 0.9) * 1.5, bottom);
+      g.scale(1 + Math.sin(frame * 0.6) * 0.05, 1);
+      g.drawImage(img, -w / 2, -h, w, h);
+      g.restore();
+    } else if (o.warn) {
+      // 快噴了：噴口冒小火、火星
+      if (frame % 3 === 0) burst(o.x + o.w / 2, bottom - 14, '#ff9a2e', 2, 3, 20, 0.1);
+      g.save();
+      g.globalAlpha = 0.35 + Math.sin(frame * 0.5) * 0.2;
+      g.drawImage(img, 0, 384 - 80, 96, 80, cx - 10, bottom - 30, 20, 30);
+      g.restore();
+    }
+    return true;
+  }
+  return false;
+}
+
 function drawObstacles(g, v, world) {
   const id = WORLDS[world].id;
   for (const o of v.obstacles) {
     const x = o.x - v.cam;
+    if (drawObstacleArt(g, o, x, id)) continue;
     if (o.kind === 'spike') {
       // 一排三角形：顏色照大關（冰山是冰、礦坑是石頭）
       const [fill, edge] = id === 'ice' ? ['#cfefff', '#6aa6d6'] : id === 'mine' ? ['#6d5a52', '#2e2420'] : id === 'castle' ? ['#9a8fb0', '#3a3050'] : ['#c9ced8', '#565d6b'];
@@ -1066,4 +1244,5 @@ export function resize(canvas) {
   canvas.width = Math.round(W * SCALE);
   canvas.height = Math.round(H * SCALE);
   patterns.clear();
+  platformCache.clear();
 }

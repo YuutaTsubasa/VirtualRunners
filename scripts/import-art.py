@@ -10,6 +10,7 @@
   bosses/<大關>/<動作>.png                   768×768，腳底 (384, 744)
   environment/<大關>-<小關>/{far,mid,ground}.png   1920×1080
   props/<大關>-crate.png、props/items/*.png、props/shots/*.png
+  props/runner/*.png（跑酷的道具，照交件尺寸存；清單在 sheets.json 的 runner）
   ui/*.png（Logo 不接：介面改用 UI Concept v1 的 Logo）
 
 產出（都是 WebP）：
@@ -48,7 +49,9 @@ CHARACTER_FRAMES = ['idle', 'walk1', 'walk2', 'punch1', 'punch2', 'kick', 'jump'
                     # 走路補成四格：兩格收腳（requests/2026-10-24-1500-anime90-walk-down-fix.md）
                     'walk3', 'walk4',
                     # 虛擬跑跑樂：跑步補成四格、滑行、空中翻滾、過終點（requests/2026-10-24-1700-anime90-runner-frames.md）
-                    'run3', 'run4', 'slide', 'roll', 'goal']
+                    'run3', 'run4', 'slide', 'roll', 'goal',
+                    # 跑步補成八格：每兩格中間的過渡（requests/2026-10-24-1830-anime90-run-inbetweens.md）
+                    'run5', 'run6', 'run7', 'run8']
 ENEMY_FRAMES = ['idle', 'walk1', 'walk2', 'windup', 'attack', 'hurt', 'fall', 'down', 'charge', 'walk3', 'walk4']
 BOSS_FRAMES = ['idle', 'walk1', 'walk2', 'windup', 'slam', 'hurt', 'fall', 'down', 'charge', 'leap', 'cast', 'vanish']
 CELL = 400
@@ -171,7 +174,7 @@ def main(src):
     metrics_path = os.path.join(src, 'layout-metrics.json')
     metrics = json.load(open(metrics_path, encoding='utf-8')) if os.path.exists(metrics_path) else {}
     sheets = json.load(open(SHEETS, encoding='utf-8')) if os.path.exists(SHEETS) else {}
-    for k in ['characters', 'enemies', 'bosses', 'stages', 'props', 'items', 'shots']:
+    for k in ['characters', 'enemies', 'bosses', 'stages', 'props', 'items', 'shots', 'runner']:
         sheets.setdefault(k, {} if k in ('characters', 'enemies', 'bosses') else [])
     written = []
 
@@ -246,6 +249,15 @@ def main(src):
                 written.append(save(load(os.path.join(props, f)), f'props/{name}.webp'))
                 if name not in sheets['props']:
                     sheets['props'].append(name)
+        # 跑酷的道具（尖刺、橫桿、跑道頂面、彈簧、金幣、終點…）：照交件的尺寸存，不套角色的 512×512 定位。
+        # 跑道頂面要左右無縫接，用無損 WebP
+        d = os.path.join(props, 'runner')
+        for f in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+            if f.endswith('.png'):
+                name = f[:-4]
+                written.append(save(load(os.path.join(d, f)), f'props/runner/{name}.webp', lossless=name.endswith('platform')))
+                if name not in sheets['runner']:
+                    sheets['runner'].append(name)
         for sub, key in (('items', 'items'), ('shots', 'shots')):
             d = os.path.join(props, sub)
             for f in sorted(os.listdir(d)) if os.path.isdir(d) else []:
@@ -255,7 +267,7 @@ def main(src):
                     if name not in sheets[key]:
                         sheets[key].append(name)
 
-    for k in ('stages', 'props', 'items', 'shots'):
+    for k in ('stages', 'props', 'items', 'shots', 'runner'):
         sheets[k].sort()
     json.dump(sheets, open(SHEETS, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
 

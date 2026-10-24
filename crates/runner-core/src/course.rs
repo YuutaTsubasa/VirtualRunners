@@ -256,6 +256,11 @@ const START_FLAT: f32 = 900.0;
 
 impl Course {
     pub fn new(plan: Plan, seed: u64) -> Self {
+        // 關卡模式每一關的路是固定的（同一關每次玩、連線比賽都一樣，可以練）；無盡模式才用傳進來的種子
+        let seed = match plan {
+            Plan::Level { world, stage } => 0x5EED_0000 + (world * STAGES + stage) as u64,
+            Plan::Endless => seed,
+        };
         let chunks_total = match plan {
             Plan::Level { world, stage } => 9 + stage as u32 + world as u32 + (stage as u32 / 3),
             Plan::Endless => u32::MAX,

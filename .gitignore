@@ -19,3 +19,6 @@ art-inbox/*
 
 # 本機設定（例如 VITE_SIGNAL_SERVER），見 README
 .env*.local
+
+# ChatGPT／Codex 的美術工作資料夾（原圖、修圖歷程、匯出工具）：只留在本機，接進遊戲的是 public/ 裡的 WebP
+art-work/anime90-*/

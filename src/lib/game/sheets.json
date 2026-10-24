@@ -21,7 +21,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -50,7 +55,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -79,7 +89,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -108,7 +123,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -137,7 +157,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -166,7 +191,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -195,7 +225,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -224,7 +259,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -253,7 +293,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -282,7 +327,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -311,7 +361,12 @@
         "win",
         "run1",
         "run2",
-        "dash"
+        "dash",
+        "run3",
+        "run4",
+        "slide",
+        "roll",
+        "goal"
       ],
       "cols": 8,
       "cell": 400,
@@ -917,5 +972,32 @@
     "city-1": 400,
     "city-2": 400,
     "city-3": 400
-  }
+  },
+  "runner": [
+    "castle-bar",
+    "castle-platform",
+    "castle-spike",
+    "city-bar",
+    "city-platform",
+    "city-spike",
+    "coin",
+    "coin-side",
+    "forest-bar",
+    "forest-platform",
+    "forest-spike",
+    "goal",
+    "ice-bar",
+    "ice-icicle",
+    "ice-platform",
+    "ice-spike",
+    "mine-bar",
+    "mine-geyser",
+    "mine-platform",
+    "mine-spike",
+    "sea-bar",
+    "sea-platform",
+    "sea-spike",
+    "spring",
+    "spring-pressed"
+  ]
 }
