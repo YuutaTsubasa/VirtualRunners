@@ -1358,7 +1358,9 @@ function drawEffects(g, cam) {
     g.globalAlpha = Math.min(1, (e.life / e.max) * 2) * e.alpha;
     g.translate(e.x - cam, e.y);
     g.rotate(e.rot);
-    g.drawImage(img, -w / 2, -w / 2, w, w);
+    // 照圖本身的比例（揚塵是橫長的 3:1，不要壓成正方形）
+    const h = (w * img.naturalHeight) / img.naturalWidth;
+    g.drawImage(img, -w / 2, -h / 2, w, h);
     g.restore();
   }
   for (const p of particles) {
