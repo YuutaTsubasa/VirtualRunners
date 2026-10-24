@@ -1,5 +1,11 @@
 // 虛擬跑跑樂（跑酷）新增的字。舊的清版動作用語在 game.js（有些畫面還共用）。
 export default {
+  '全程無傷': 'No hits',
+  '完成關卡': 'Stage cleared',
+  '選擇關卡': 'Choose Stage',
+  '金幣達 70%': '70% of coins',
+  '開始冒險': 'Start the adventure',
+  '開始跑': 'Run!',
   '1-1～6-8': '1-1 – 6-8',
   'A／LB／十字鍵上': 'A / LB / D-pad ↑',
   'B／十字鍵下': 'B / D-pad ↓',

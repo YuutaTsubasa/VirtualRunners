@@ -1,0 +1,10 @@
+{
+  "name": "00-brand-system-final",
+  "refs": [
+    "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png"
+  ],
+  "prompt": "Precise text-only edit of this UI concept board. In the disabled pale blue button near the middle-right, replace the current four Chinese characters 挑戰模式 with exactly '尚未解鎖'. Preserve the lock icon. Preserve EVERYTHING ELSE exactly: complete logo 虛擬跑跑樂 and English VIRTUAL RUNNERS, all colors, button shapes, palette codes, route line, hearts, coin, spacing, sky background, size and composition. Do not redraw or change any other text. This is a disabled-state sample, not a new game mode.",
+  "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-7aca0cd7-24a3-4077-a01c-cd3e6dd91a66.png",
+  "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system-final.png",
+  "tool": "built-in image_gen"
+}

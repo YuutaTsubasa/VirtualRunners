@@ -1,0 +1,10 @@
+{
+  "name": "03-stage-map-final",
+  "refs": [
+    "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/03-stage-map.png"
+  ],
+  "prompt": "Precise single-text correction to this UI screenshot. The FIRST locked route node immediately to the upper right of the orange 1-3 node, near x53%,y56%, currently wrongly says 1-5. Change ONLY that node label to '1-4'. The next node up and right remains '1-5'. Thus the eight connected route nodes must read in order 1-1,1-2,1-3,1-4,1-5,1-6,1-7,1-8. Preserve all node positions, all artwork, all other text, world tabs, selected level card, colors and composition exactly. Do not alter any other element.",
+  "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-88b25d08-b618-4715-850f-428d482213e8.png",
+  "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/03-stage-map-final.png",
+  "tool": "built-in image_gen"
+}

@@ -19,6 +19,7 @@
   import SettingsDialog from './lib/components/SettingsDialog.svelte';
   import SelectScreen from './lib/components/SelectScreen.svelte';
   import StageMap from './lib/components/StageMap.svelte';
+  import ResultScreen from './lib/components/ResultScreen.svelte';
   import RoomEntry from './lib/components/RoomEntry.svelte';
   import Lobby from './lib/components/Lobby.svelte';
   import Controls from './lib/components/Controls.svelte';
@@ -282,11 +283,6 @@
 <svelte:window {onkeydown} />
 <Controls {inGame} onback={back} onpause={pause} />
 
-{#snippet starRow(n)}
-  <div class="stars">
-    {#each [0, 1, 2] as i (i)}<span class:on={i < n}>★</span>{/each}
-  </div>
-{/snippet}
 
 <div id="stage">
   <canvas bind:this={canvas}></canvas>
@@ -387,37 +383,23 @@
       />
     </Dialog>
   {:else if screen === 'result' && result}
-    <Dialog title={result.title} subtitle={result.stage} wide>
-      <div class="result">
-        <div class="result-pic"><img src={result.kind === 'goal' || result.endless ? result.character.portraits.win : result.character.portraits.sad} alt="" /></div>
-        <div class="result-info">
-          {#if !result.endless}
-            {#if result.kind === 'goal'}{@render starRow(result.stars)}{/if}
-            <p>{t('金幣')} <b>{result.coins}</b> / {result.coinTotal}　{t('受傷')} <b>{result.hits}</b></p>
-          {:else}
-            <p class="big">{result.meters} m</p>
-            <p>{t('最高紀錄')} {result.best.meters} m・{String(result.best.score).padStart(7, '0')}</p>
-          {/if}
-          <p class="score">{t('分數')} <b>{String(result.score).padStart(7, '0')}</b></p>
-          {#if result.record && !demo}<p class="record">{result.endless ? t('新紀錄！') : t('星星更新了！')}</p>{/if}
-          <p class="result-line">「{result.line}」</p>
-          {#if result.unlocked}<p class="result-unlock">{t('隱藏角色「阿翼」加入了！')}</p>{/if}
-        </div>
-      </div>
-      <Menu
-        horizontal
-        items={[
-          ...(result.next && result.kind === 'goal' ? [{ label: t('下一關'), action: () => ((mapAt = result.next), start(result.next)), primary: true }] : []),
-          { label: result.kind === 'goal' && !result.endless ? t('再跑一次') : t('再挑戰'), action: () => start(plan, demo ? result.character.id : character, demo), primary: !(result.next && result.kind === 'goal') },
-          ...(plan?.kind === 'level' ? [{ label: t('關卡地圖'), action: () => (screen = 'map') }] : []),
-          { label: t('回標題'), action: toTitle },
-        ]}
-      />
-    </Dialog>
+    <ResultScreen
+      {result}
+      {demo}
+      actions={[
+        ...(result.next && result.kind === 'goal' ? [{ label: t('下一關'), action: () => ((mapAt = result.next), start(result.next)), primary: true }] : []),
+        { label: result.kind === 'goal' && !result.endless ? t('再跑一次') : t('再挑戰'), action: () => start(plan, demo ? result.character.id : character, demo), primary: !(result.next && result.kind === 'goal') },
+        ...(plan?.kind === 'level' ? [{ label: t('關卡地圖'), action: () => (screen = 'map') }] : []),
+        { label: t('回標題'), action: toTitle },
+      ]}
+    />
   {/if}
 
   {#if showTouch}
     <TouchControls slots={[0]} onpause={pause} />
+  {:else if inGame}
+    <!-- 滑鼠／鍵盤：右上角的圓形暫停鈕（跟 HUD 的膠囊排在一起） -->
+    <button type="button" class="pause-btn" tabindex="-1" aria-label={t('暫停')} onclick={pause}><i></i><i></i></button>
   {/if}
 
   <div class="toasts">
@@ -437,6 +419,31 @@
 </div>
 
 <style>
+  .pause-btn {
+    position: absolute;
+    top: 2.2cqh;
+    right: 1.25cqw;
+    width: 8.2cqh;
+    height: 8.2cqh;
+    border-radius: 50%;
+    border: 0.37cqh solid var(--navy);
+    background: #fff;
+    box-shadow: 0 0.55cqh 0 rgba(17, 111, 149, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1cqh;
+    z-index: 5;
+  }
+  .pause-btn i {
+    width: 1.1cqh;
+    height: 3.4cqh;
+    border-radius: 0.4cqh;
+    background: var(--navy);
+  }
+  .pause-btn:hover {
+    background: var(--sky-light);
+  }
   .loading {
     position: absolute;
     inset: 0;
@@ -471,73 +478,6 @@
     width: 50cqw;
     display: flex;
     justify-content: center;
-  }
-  .result {
-    display: flex;
-    gap: 3cqw;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2cqh;
-  }
-  .result-pic {
-    width: 26cqh;
-    height: 26cqh;
-    border: 0.5cqh solid var(--navy);
-    outline: 0.35cqh solid var(--gold);
-    outline-offset: -1cqh;
-    background: linear-gradient(#ffe9a8, #ffb3c8);
-    overflow: hidden;
-    flex: none;
-  }
-  .result-pic img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .result-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1cqh;
-    font-weight: 800;
-    font-size: 2.6cqh;
-    min-width: 36cqw;
-  }
-  .result-info p {
-    margin: 0;
-  }
-  .result-info .big {
-    font-size: 7cqh;
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 1;
-  }
-  .result-info .score b {
-    color: var(--sea);
-    letter-spacing: 0.08em;
-  }
-  .record {
-    color: var(--accent);
-    font-weight: 900;
-  }
-  .result-line {
-    font-size: 2.8cqh;
-  }
-  .result-unlock {
-    color: var(--accent);
-    font-weight: 900;
-  }
-  .stars {
-    display: flex;
-    gap: 1cqw;
-    font-size: 7cqh;
-    line-height: 1;
-  }
-  .stars span {
-    color: rgba(0, 0, 0, 0.18);
-    -webkit-text-stroke: 0.25cqh var(--navy);
-  }
-  .stars span.on {
-    color: var(--gold);
   }
   .ranking {
     list-style: none;

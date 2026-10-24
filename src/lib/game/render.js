@@ -983,7 +983,9 @@ function drawGhosts(g, race, you, centerX) {
   }
 }
 
-// ---------- HUD ----------
+// ---------- HUD（art-work/runner-ui-concept-v1/04-gameplay-hud：雲白膠囊＋深墨細框） ----------
+
+const HUD = { ink: '#163a4b', lake: '#116f95', sky: '#23b5e8', orange: '#ff8a3d', gold: '#f5c949', light: '#ecf8fc', line: '#bfe6f5' };
 
 function heart(g, x, y, s, fill) {
   g.save();
@@ -996,108 +998,192 @@ function heart(g, x, y, s, fill) {
   g.fillStyle = fill;
   g.fill();
   g.lineWidth = 2.5;
-  g.strokeStyle = pal.ink;
+  g.strokeStyle = HUD.ink;
   g.stroke();
   g.restore();
 }
 
+/** 雲白膠囊（圓角＝高度一半）、深墨細框、往下一點影子 */
 function panel(g, x, y, w, h) {
-  g.fillStyle = 'rgba(20,22,30,0.72)';
-  rr(g, x, y, w, h, 10);
+  g.fillStyle = 'rgba(17,111,149,0.35)';
+  rr(g, x, y + 3, w, h, h / 2);
   g.fill();
-  g.strokeStyle = 'rgba(245,239,223,0.5)';
+  g.fillStyle = 'rgba(255,255,255,0.95)';
+  rr(g, x, y, w, h, h / 2);
+  g.fill();
+  g.strokeStyle = HUD.ink;
   g.lineWidth = 2;
   g.stroke();
 }
 
+function hudText(g, text, x, y, size, color = HUD.ink, align = 'left', weight = 900) {
+  g.font = `${weight} ${size}px ${FONT}`;
+  g.textAlign = align;
+  g.textBaseline = 'middle';
+  g.fillStyle = color;
+  g.fillText(text, x, y);
+}
+
+function coinIcon(g, x, y, r) {
+  const img = runnerArt('coin');
+  if (ready(img)) return g.drawImage(img, x - r, y - r, r * 2, r * 2);
+  g.fillStyle = HUD.gold;
+  g.beginPath();
+  g.arc(x, y, r, 0, Math.PI * 2);
+  g.fill();
+  g.strokeStyle = HUD.ink;
+  g.lineWidth = 1.5;
+  g.stroke();
+}
+
+/** 到終點的路線進度：虛線路＋中間的里程點＋終點格子旗；自己是橘點，別人是各自的顏色 */
+function routeBar(g, x, y, w, prog, others = []) {
+  g.save();
+  g.strokeStyle = HUD.line;
+  g.lineWidth = 6;
+  g.lineCap = 'round';
+  g.beginPath();
+  g.moveTo(x, y);
+  g.lineTo(x + w, y);
+  g.stroke();
+  g.strokeStyle = HUD.sky;
+  g.lineWidth = 6;
+  g.beginPath();
+  g.moveTo(x, y);
+  g.lineTo(x + w * prog, y);
+  g.stroke();
+  g.setLineDash([5, 5]);
+  g.strokeStyle = HUD.lake;
+  g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(x + w * prog, y);
+  g.lineTo(x + w, y);
+  g.stroke();
+  g.restore();
+  for (const k of [0.25, 0.5, 0.75]) {
+    g.fillStyle = prog >= k ? HUD.sky : '#fff';
+    g.strokeStyle = HUD.lake;
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.arc(x + w * k, y, 4, 0, Math.PI * 2);
+    g.fill();
+    g.stroke();
+  }
+  // 終點格子旗
+  const fx = x + w + 4;
+  g.fillStyle = HUD.ink;
+  g.fillRect(fx, y - 12, 2, 16);
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
+    g.fillStyle = (i + j) % 2 ? HUD.ink : '#fff';
+    g.fillRect(fx + 2 + i * 4, y - 12 + j * 4, 4, 4);
+  }
+  for (const o of others) {
+    g.fillStyle = o.color;
+    g.beginPath();
+    g.arc(x + w * o.prog, y, 4.5, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.fillStyle = HUD.orange;
+  g.strokeStyle = HUD.ink;
+  g.lineWidth = 2;
+  g.beginPath();
+  g.arc(x + w * prog, y, 7, 0, Math.PI * 2);
+  g.fill();
+  g.stroke();
+}
+
+// 右上留給 HTML 的暫停鈕（App.svelte），右邊的膠囊往左讓一點
+const PAUSE_GAP = 50;
+
 function drawHud(g, v, race, you) {
   const r = v.runner;
   const c = getCharacter(v.character);
-  // 左上：頭像、愛心、護盾
-  panel(g, 10, 10, 210, 58);
+  // 左上：頭像＋名字＋愛心（護盾是一個藍色泡泡）
+  const hearts = Math.max(r.hp, 0) + (r.shield ? 1 : 0);
+  const lw = 128 + Math.min(6, hearts) * 22;
+  panel(g, 12, 12, lw, 44);
   const face = loadImage(c.portraits.normal);
   g.save();
   g.beginPath();
-  g.arc(39, 39, 23, 0, Math.PI * 2);
-  g.fillStyle = '#ffe9a8';
+  g.arc(36, 34, 25, 0, Math.PI * 2);
+  g.fillStyle = HUD.sky;
   g.fill();
+  g.beginPath();
+  g.arc(36, 34, 21.5, 0, Math.PI * 2);
   g.clip();
-  if (ready(face)) g.drawImage(face, 39 - 30, 39 - 22, 60, 60);
+  g.fillStyle = '#bfe9fb';
+  g.fill();
+  if (ready(face)) g.drawImage(face, 36 - 27, 34 - 19, 54, 54);
   g.restore();
-  for (let i = 0; i < Math.max(r.hp, 0) + (r.shield ? 1 : 0) && i < 6; i++) {
-    if (i < r.hp) heart(g, 82 + i * 26, 40, 22, pal.hp);
+  hudText(g, c.name, 68, 34, 16);
+  for (let i = 0; i < Math.min(6, hearts); i++) {
+    const hx = 68 + 46 + i * 22;
+    if (i < r.hp) heart(g, hx, 36, 20, '#ff5a6e');
     else {
       g.fillStyle = '#8fe8ff';
       g.beginPath();
-      g.arc(82 + i * 26, 38, 10, 0, Math.PI * 2);
+      g.arc(hx, 34, 8.5, 0, Math.PI * 2);
       g.fill();
-      g.strokeStyle = pal.ink;
+      g.strokeStyle = HUD.ink;
       g.lineWidth = 2;
       g.stroke();
     }
   }
-  // 右上：金幣、分數
-  panel(g, W - 220, 10, 210, 58);
-  g.fillStyle = '#ffd84a';
-  g.beginPath();
-  g.arc(W - 196, 27, 9, 0, Math.PI * 2);
-  g.fill();
-  outlinedText(g, String(v.coins), W - 180, 27, 18, '#ffe066', 'left');
-  outlinedText(g, String(v.score).padStart(7, '0'), W - 18, 51, 20, pal.text, 'right');
-  if (v.plan.kind === 'level' && v.coin_total) outlinedText(g, `/ ${v.coin_total}`, W - 18, 27, 13, 'rgba(255,255,255,0.7)', 'right');
 
-  // 中上：關卡進度條（無盡模式是距離）
+  // 右上：金幣｜分數
+  const rw = 214;
+  const rx = W - 12 - PAUSE_GAP - rw;
+  panel(g, rx, 12, rw, 44);
+  coinIcon(g, rx + 24, 34, 12);
+  hudText(g, v.plan.kind === 'level' && v.coin_total ? `${v.coins}/${v.coin_total}` : String(v.coins), rx + 42, 35, 16);
+  g.fillStyle = HUD.line;
+  g.fillRect(rx + 112, 22, 2, 24);
+  hudText(g, String(v.score).padStart(7, '0'), rx + rw - 16, 35, 17, HUD.ink, 'right');
+
+  // 中上：關卡名稱＋路線進度（魔王關是魔王血量；無盡模式是距離與速度）
+  const cw = 300;
+  const cx = (lw + 12 + rx) / 2 - cw / 2;
+  panel(g, cx, 12, cw, 44);
   if (v.plan.kind === 'level') {
     const w = WORLDS[v.plan.world];
-    outlinedText(g, `${stageLabel(v.plan.world, v.plan.stage)} ${t(w.subs[v.plan.stage])}`, W / 2, 22, 16);
-    if (v.boss) drawBossBar(g, v.boss, world);
+    g.fillStyle = HUD.orange;
+    rr(g, cx + 12, 20, 34, 15, 7.5);
+    g.fill();
+    hudText(g, stageLabel(v.plan.world, v.plan.stage), cx + 29, 28, 11, HUD.ink, 'center');
+    hudText(g, t(w.subs[v.plan.stage]), cx + 52, 28, 13);
+    if (v.boss) drawBossBar(g, v.boss, v.plan.world, cx, cw);
     else {
-      const bx = W / 2 - 150;
-      g.fillStyle = 'rgba(20,22,30,0.6)';
-      rr(g, bx, 40, 300, 12, 6);
-      g.fill();
-      g.fillStyle = pal.teal;
-      rr(g, bx, 40, 300 * (v.progress ?? 0), 12, 6);
-      g.fill();
-      // 別人的位置（連線）
-      if (race) {
-        for (const o of race.runners) {
-          if (o.seat === you || o.p.prog == null) continue;
-          g.fillStyle = SLOT_COLORS[o.seat % SLOT_COLORS.length];
-          g.beginPath();
-          g.arc(bx + 300 * o.p.prog, 46, 5, 0, Math.PI * 2);
-          g.fill();
-        }
-      }
-      g.fillStyle = '#fff';
-      g.beginPath();
-      g.arc(bx + 300 * (v.progress ?? 0), 46, 7, 0, Math.PI * 2);
-      g.fill();
-      g.strokeStyle = pal.ink;
-      g.lineWidth = 2;
-      g.stroke();
+      const others = race ? race.runners.filter((o) => o.seat !== you && o.p.prog != null).map((o) => ({ prog: o.p.prog, color: SLOT_COLORS[o.seat % SLOT_COLORS.length] })) : [];
+      routeBar(g, cx + 18, 44, cw - 48, v.progress ?? 0, others);
     }
   } else {
-    outlinedText(g, `${v.meters} m`, W / 2, 30, 28, '#fff');
-    outlinedText(g, `SPEED ${(v.speed / 6).toFixed(1)}x`, W / 2, 56, 13, 'rgba(255,255,255,0.8)');
+    hudText(g, `${v.meters} m`, cx + 18, 35, 22);
+    g.fillStyle = HUD.sky;
+    rr(g, cx + cw - 104, 23, 90, 22, 11);
+    g.fill();
+    hudText(g, `SPEED ${(v.speed / 6).toFixed(1)}x`, cx + cw - 59, 35, 12, '#fff', 'center');
   }
   if (v.combo > 1) outlinedText(g, `${v.combo} COMBO!`, SCREEN_X, 110, 22, '#ffd84a');
-  if (race) drawRaceBoard(g, race, you, 80);
+  if (race) drawRaceBoard(g, race, you, 70);
 }
 
 let world = 0;
-function drawBossBar(g, b, w) {
+function drawBossBar(g, b, w, cx, cw) {
   const name = t(WORLDS[w].boss.name);
-  const bx = W / 2 - 150;
-  outlinedText(g, name, bx, 46, 13, '#fff', 'left');
-  for (let i = 0; i < b.max; i++) {
-    g.fillStyle = i < b.hp ? pal.accent : 'rgba(255,255,255,0.25)';
-    rr(g, bx + 110 + i * 34, 39, 28, 14, 4);
+  hudText(g, name, cx + cw - 14, 28, 11, HUD.lake, 'right', 800);
+  const n = b.max;
+  const pw = (cw - 40 - (n - 1) * 4) / n;
+  for (let i = 0; i < n; i++) {
+    g.fillStyle = i < b.hp ? '#ff5a6e' : HUD.light;
+    rr(g, cx + 20 + i * (pw + 4), 39, pw, 9, 4.5);
     g.fill();
+    g.strokeStyle = HUD.ink;
+    g.lineWidth = 1.5;
+    g.stroke();
   }
 }
 
-/** 右邊的名次表（連線） */
+/** 右邊窄窄的名次條（連線）：名次＋名字＋進度，自己那一列是橘色底 */
 function drawRaceBoard(g, race, you, top) {
   const rows = [...race.runners].sort((a, b) => {
     const fa = a.p.fin ?? Infinity;
@@ -1107,25 +1193,55 @@ function drawRaceBoard(g, race, you, top) {
     return b.p.x - a.p.x;
   });
   const h = 22;
-  panel(g, W - 220, top, 210, rows.length * h + 10);
+  const x = W - 12 - 196;
+  g.fillStyle = 'rgba(255,255,255,0.92)';
+  rr(g, x, top, 196, rows.length * h + 10, 12);
+  g.fill();
+  g.strokeStyle = HUD.ink;
+  g.lineWidth = 2;
+  g.stroke();
   rows.forEach((o, i) => {
     const y = top + 16 + i * h;
-    const mine = o.seat === you;
-    if (mine) {
-      g.fillStyle = 'rgba(255,216,74,0.25)';
-      g.fillRect(W - 216, y - 10, 202, 20);
+    if (o.seat === you) {
+      g.fillStyle = 'rgba(255,138,61,0.35)';
+      rr(g, x + 4, y - 10, 188, 20, 10);
+      g.fill();
     }
     g.fillStyle = SLOT_COLORS[o.seat % SLOT_COLORS.length];
-    g.fillRect(W - 212, y - 7, 6, 14);
-    g.font = `900 13px ${FONT}`;
-    g.textBaseline = 'middle';
-    g.textAlign = 'left';
-    g.fillStyle = o.p.out ? 'rgba(255,255,255,0.45)' : '#fff';
-    g.fillText(`${i + 1}. ${displayName(o.name)}`.slice(0, 14), W - 200, y);
-    g.textAlign = 'right';
+    g.beginPath();
+    g.arc(x + 16, y, 6, 0, Math.PI * 2);
+    g.fill();
+    const color = o.p.out ? '#9bb5c2' : HUD.ink;
+    hudText(g, `${i + 1}. ${displayName(o.name)}`.slice(0, 13), x + 28, y, 13, color);
     const right = o.p.fin != null ? `${(o.p.fin / 60).toFixed(1)}s` : o.p.out ? t('倒下') : race.plan.kind === 'endless' ? `${o.p.meters}m` : `${Math.round((o.p.prog ?? 0) * 100)}%`;
-    g.fillText(right, W - 16, y);
+    hudText(g, right, x + 186, y, 13, color, 'right');
   });
+}
+
+/** 左下的小鍵位提示（觸控時不畫，觸控有自己的按鈕） */
+function drawKeyHints(g) {
+  const keys = [
+    ['↑', t('跳')],
+    ['↓', t('滑')],
+    ['→', t('衝')],
+  ];
+  let x = 14;
+  const y = H - 22;
+  for (const [k, label] of keys) {
+    g.fillStyle = 'rgba(255,255,255,0.9)';
+    rr(g, x, y - 11, 22, 22, 6);
+    g.fill();
+    g.strokeStyle = HUD.ink;
+    g.lineWidth = 1.5;
+    g.stroke();
+    hudText(g, k, x + 11, y + 1, 13, HUD.ink, 'center');
+    g.save();
+    g.shadowColor = 'rgba(0,0,0,0.6)';
+    g.shadowBlur = 3;
+    hudText(g, label, x + 27, y + 1, 13, '#fff', 'left', 800);
+    g.restore();
+    x += 27 + g.measureText(label).width + 12;
+  }
 }
 
 function drawCountdown(g, v) {
@@ -1198,7 +1314,7 @@ function drawSpectate(g, race) {
   if (race) drawRaceBoard(g, race, null, 80);
 }
 
-export function draw(canvas, v, { race = null, you = null, spectate = false } = {}) {
+export function draw(canvas, v, { race = null, you = null, spectate = false, keys = false } = {}) {
   updatePalette();
   cfg = currentConfig();
   if (SCALE !== cfg.canvasScale || canvas.width !== Math.round(W * cfg.canvasScale)) resize(canvas);
@@ -1234,6 +1350,7 @@ export function draw(canvas, v, { race = null, you = null, spectate = false } = 
     g.fillRect(0, 0, W, H);
   }
   drawHud(g, v, race, you);
+  if (keys) drawKeyHints(g);
   drawCountdown(g, v);
   drawBanners(g);
 }

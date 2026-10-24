@@ -1,11 +1,11 @@
 <script>
-  // 選單畫面的共用版型（art-work/ui-concept-v1）：左上毛筆大標題（前半暖白、後半朱紅，壓在墨色筆刷上）＋小標，
-  // 右上一條關卡風景＋小 Logo＋齒輪，青綠分隔線；中間內容；底部（返回／提示／主要按鈕）。
+  // 選單畫面的共用版型（art-work/runner-ui-concept-v1）：左上圓厚的兩色大標題（前半深湖藍、後半日光橘，白色粗外框）＋小標，
+  // 右上一條關卡風景＋小 Logo＋齒輪，晴空藍的路線虛線分隔；中間內容；底部（返回／提示／主要按鈕）。
   import Logo from './Logo.svelte';
   import SettingsButton from './SettingsButton.svelte';
   import WorldScene from './WorldScene.svelte';
 
-  // accent：標題後半段要變朱紅的字數（沒給就自動：中文最後兩個字、英文最後一個字）
+  // accent：標題後半段要變橘色的字數（沒給就自動：中文最後兩個字、英文最後一個字）
   let { title, subtitle = '', accent = null, world = 0, children, foot } = $props();
 
   const parts = $derived.by(() => {
@@ -30,7 +30,7 @@
   <div class="frame">
     <header class="frame-head">
       <div class="scenery"><WorldScene {world} /></div>
-      <h2 class="brush-title" style:font-size={titleSize}>
+      <h2 class="pop-title pop-text" style:font-size={titleSize}>
         <span class="a">{parts[0]}</span><span class="b">{parts[1]}</span>
       </h2>
       {#if subtitle}<p class="sub">{subtitle}</p>{/if}
@@ -56,7 +56,7 @@
     padding-bottom: 1.2cqh;
     min-width: 0;
   }
-  /* 青綠分隔線 */
+  /* 路線虛線＋終點旗：晴空藍 */
   .frame-head::after {
     content: '';
     position: absolute;
@@ -64,53 +64,36 @@
     right: 0;
     bottom: 0;
     height: 0.5cqh;
-    background: var(--teal);
+    border-radius: 999px;
+    background: repeating-linear-gradient(90deg, var(--sky) 0 2.4cqh, transparent 2.4cqh 3.6cqh);
   }
-  /* 右上的關卡風景：往左淡出到紙色 */
+  /* 右上的關卡風景：圓角、往左淡出到天空 */
   .scenery {
     position: absolute;
     right: -3cqw;
     top: -2cqh;
-    bottom: 0.5cqh;
+    bottom: 1.4cqh;
     width: 58cqw;
     overflow: hidden;
+    border-bottom-left-radius: 4cqh;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%);
     mask-image: linear-gradient(90deg, transparent, #000 40%);
-    opacity: 0.9;
+    opacity: 0.95;
   }
 
-  /* 毛筆大標題：墨色筆刷底，前半段暖白、後半段朱紅 */
-  .brush-title {
+  /* 圓厚的兩色標題：前半深湖藍、後半日光橘，白色粗外框（.pop-text） */
+  .pop-title {
     position: relative;
     margin: 0;
-    padding: 0.4cqh 4cqh 0.8cqh 3cqh;
+    padding: 0 1cqh 0.8cqh 0.4cqh;
     font-size: 10cqh;
-    font-weight: 900;
-    font-style: italic;
-    letter-spacing: 0.04em;
-    line-height: 1.05;
     white-space: nowrap;
-    isolation: isolate;
-    transform: skewX(-4deg);
   }
-  .brush-title::before {
-    content: '';
-    position: absolute;
-    inset: 12% -2% 4% 0;
-    z-index: -1;
-    background: var(--navy);
-    clip-path: polygon(2% 18%, 10% 4%, 30% 10%, 55% 0, 80% 8%, 100% 2%, 94% 38%, 99% 64%, 90% 100%, 60% 90%, 34% 100%, 8% 92%, 0 70%, 4% 46%);
+  .pop-title .a {
+    color: var(--teal);
   }
-  .brush-title .a {
-    color: var(--on-dark);
-    -webkit-text-stroke: 0.35cqh var(--navy);
-    paint-order: stroke fill;
-  }
-  .brush-title .b {
+  .pop-title .b {
     color: var(--accent);
-    -webkit-text-stroke: 0.35cqh var(--navy);
-    paint-order: stroke fill;
-    text-shadow: 0.3cqh 0.3cqh 0 var(--on-dark);
   }
   .sub {
     position: relative;
@@ -119,7 +102,14 @@
     font-weight: 900;
     letter-spacing: 0.3em;
     white-space: nowrap;
-    text-shadow: 0 0 1cqh var(--cream), 0 0 0.6cqh var(--cream);
+    color: var(--teal);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.4cqh 2cqh;
+    margin-top: 1.6cqh;
+    font-size: 2.6cqh;
+    letter-spacing: 0.12em;
+    box-shadow: var(--soft-shadow);
   }
   .corner {
     position: relative;
@@ -130,6 +120,6 @@
   }
   .mini-logo {
     width: 15cqh;
-    filter: drop-shadow(0 0 1cqh rgba(245, 239, 223, 0.8));
+    filter: drop-shadow(0 0.3cqh 0.6cqh rgba(22, 58, 75, 0.25));
   }
 </style>

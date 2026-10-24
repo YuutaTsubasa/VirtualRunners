@@ -6,7 +6,7 @@
   import { play } from '../game/audio.js';
   import { ui } from '../ui.svelte.js';
   import ScreenFrame from './ScreenFrame.svelte';
-  import SpritePose from './SpritePose.svelte';
+  import RunnerPose from './RunnerPose.svelte';
   import WorldScene from './WorldScene.svelte';
   import BackButton from './BackButton.svelte';
   import ControlHint from './ControlHint.svelte';
@@ -85,11 +85,11 @@
           <WorldScene world={mode.world} />
           <div class="side left">
             <span class="who">{mode.tags[0]}</span>
-            <SpritePose character={pairs[current][0]} pose={mode.poses[0]} size="32cqh" />
+            <RunnerPose character={pairs[current][0]} size="32cqh" />
           </div>
           <div class="side right">
             <span class="who cpu" class:p2={mode.tags[1] === '2P'}>{mode.tags[1]}</span>
-            <SpritePose character={pairs[current][1]} pose={mode.poses[1]} size="32cqh" />
+            <RunnerPose character={pairs[current][1]} size="32cqh" delay={3} />
           </div>
         {/if}
       {/key}
@@ -179,7 +179,8 @@
   .stage-art {
     position: relative;
     flex: 1;
-    border: 0.35cqh solid var(--navy);
+    border: var(--line) solid var(--sky-line);
+    border-radius: 2cqh;
     background-position: center 70%;
     background-size: cover;
     overflow: hidden;
@@ -196,21 +197,22 @@
     animation: pop 0.25s ease-out;
   }
   .who {
-    background: var(--navy);
-    color: var(--on-dark);
+    background: var(--teal);
+    color: #fff;
     font-weight: 900;
-    font-size: 3cqh;
-    padding: 0.2cqh 3cqh;
-    border: 0.35cqh solid var(--cream);
-    border-radius: 1cqh;
+    font-size: 2.6cqh;
+    padding: 0.2cqh 2.6cqh;
+    border: 0.3cqh solid #fff;
+    border-radius: 999px;
     margin-bottom: -1cqh;
     z-index: 1;
   }
   .who.cpu {
-    background: #1b6b5a;
+    background: var(--navy-soft);
   }
   .who.p2 {
     background: var(--accent);
+    color: var(--navy);
   }
 
 
@@ -223,8 +225,10 @@
     animation: pop 0.25s ease-out;
   }
   .caption {
-    background: var(--cream);
-    border: 0.35cqh solid var(--navy);
+    background: #fff;
+    border: var(--line) solid var(--sky-line);
+    border-radius: 999px;
+    color: var(--teal);
     text-align: center;
     font-weight: 900;
     font-size: 3.2cqh;

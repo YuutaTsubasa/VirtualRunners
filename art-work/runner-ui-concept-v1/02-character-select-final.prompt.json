@@ -1,0 +1,10 @@
+{
+  "name": "02-character-select-final",
+  "refs": [
+    "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/02-character-select.png"
+  ],
+  "prompt": "Precise text correction only. Preserve this complete UI concept screenshot and every portrait and composition exactly. The blond crowned prince portrait in the BOTTOM ROW THIRD tile must have the Traditional Chinese name '雷歐' (Thunder character 雷, followed by 歐), not 里歐. Change only that name label to 雷歐. Do not change other names or characters. All other labels: 小翠, 月華, 阿明, 糖糖, 小春, 蘭姐, 蒼牙, 金爺, 阿烈, ??? stay as they are. Keep the main selected character name 小翠 and ability 幸運磁鐵 unchanged. No new elements.",
+  "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-ab76ef0d-f39b-4bb1-8ca9-41d1c32bd7ce.png",
+  "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/02-character-select-final.png",
+  "tool": "built-in image_gen"
+}

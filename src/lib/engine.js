@@ -11,6 +11,7 @@ import * as render from './game/render.js';
 import { play } from './game/audio.js';
 import { COUNTDOWN } from './game/constants.js';
 import { onFrame, sendProgress } from './net.svelte.js';
+import { ui } from './ui.svelte.js';
 
 const FRAME = 1000 / 60;
 // 過終點／倒下後先停一下才跳結果
@@ -111,7 +112,7 @@ export function createEngine(canvas, { onEnd = () => {}, onEvent = () => {} }) {
     }
     // 沒跑模擬的影格（高更新率螢幕）不要清掉「剛按下」，否則會吃掉按鍵
     if (steps > 0) input.endFrame();
-    if (state !== 'idle') render.draw(canvas, view, { race, you, spectate: state === 'spectate' });
+    if (state !== 'idle') render.draw(canvas, view, { race, you, spectate: state === 'spectate', keys: ui.input !== 'touch' && state !== 'spectate' });
     raf = requestAnimationFrame(loop);
   }
   raf = requestAnimationFrame(loop);

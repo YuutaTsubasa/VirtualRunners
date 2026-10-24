@@ -1,6 +1,7 @@
 <script>
-  // 選角（art-work/ui-concept-v1/02-character-select 的版型）：左邊角色名冊、中間目前角色的大頭像、
-  // 右邊小能力與這一次要跑的模式。每個角色的能力不一樣（數值在 crates/runner-core/src/characters.rs）。
+  // 選角（art-work/runner-ui-concept-v1/02-character-select）：左上是目前角色的大幅奔跑姿態（踩在晴空藍的速度帶上），
+  // 右邊白色能力牌（名字、小能力、說明），底下兩排名冊（10 位＋隱藏角色）。每個角色的能力不一樣
+  // （數值在 crates/runner-core/src/characters.rs）。阿翼沒解鎖前不露出身份。
   import { onMount, untrack } from 'svelte';
   import { CHARACTERS, isUnlocked } from '../game/characters.js';
   import { endlessBest, totalStars, MAX_STARS } from '../game/progress.js';
@@ -10,7 +11,7 @@
   import BackButton from './BackButton.svelte';
   import ControlHint from './ControlHint.svelte';
   import CharacterGrid from './CharacterGrid.svelte';
-  import SpritePose from './SpritePose.svelte';
+  import RunnerPose from './RunnerPose.svelte';
   import { asset } from '../art-style.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -51,49 +52,33 @@
 
 <ScreenFrame title={t('選擇跑者')} subtitle={start === 'level' ? t('關卡模式：選好角色，再選關卡') : t('無盡模式：跑越遠越快！')}>
   <div class="select">
-    <div class="roster">
-      <CharacterGrid bind:this={grid} bind:cursor columns={3} onpick={(c) => pick(c)} />
-    </div>
-
     <div class="hero">
-      {#key current.id}
-        {#if open}
-          <img src={current.portraits.happy} alt="" draggable="false" />
-        {:else}
-          <img class="lock" src={asset('ui/icons/lock.webp')} alt="" />
-        {/if}
-      {/key}
-      <div class="name-brush">
-        <b>{open ? current.name : '？？？'}</b>
-        <small>{open ? current.intro : t('打倒第一大關的魔王就會出現。')}</small>
-      </div>
+      <div class="swoosh"></div>
+      {#if open}
+        {#key current.id}
+          <div class="hero-run"><RunnerPose character={current} size="46cqh" /></div>
+        {/key}
+      {:else}
+        <img class="lock" src={asset('ui/icons/lock.webp')} alt="" />
+      {/if}
     </div>
 
-    <div class="info">
-      <h3 class="ink-tab">{t('能力')}</h3>
-      <div class="special" style:--sp={open ? current.specialColor : 'var(--navy)'}>
-        <b><span>{t('特殊能力')}</span>{open ? current.specialName : '？？？'}</b>
-        <small>{open ? current.specialDesc : ''}</small>
+    <div class="info panel">
+      <div class="mode-pill">{start === 'level' ? t('關卡模式') : t('無盡模式')}
+        {#if start === 'level'}<b>★ {stars} / {MAX_STARS}</b>{:else}<b>{t('最遠')} {best.meters} m</b>{/if}
       </div>
-      <div class="poses">
-        {#if open}
-          {#key current.id}
-            <SpritePose character={current} pose="run1" size="20cqh" />
-            <SpritePose character={current} pose="jump" size="20cqh" />
-            <SpritePose character={current} pose="dash" size="20cqh" />
-          {/key}
-        {/if}
+      <h3 class="name pop-text">{open ? current.name : '？？？'}</h3>
+      <p class="intro">{open ? current.intro : t('打倒第一大關的魔王就會出現。')}</p>
+      <div class="ability" style:--sp={open ? current.specialColor : 'var(--muted)'}>
+        <span class="pill">{t('特殊能力')}</span>
+        <b>{open ? current.specialName : '？？？'}</b>
       </div>
-      <h3 class="ink-tab">{start === 'level' ? t('關卡模式') : t('無盡模式')}</h3>
-      <div class="settings">
-        {#if start === 'level'}
-          <span>{t('星星')}</span><b>★ {stars} / {MAX_STARS}</b>
-        {:else}
-          <span>{t('最遠')}</span><b>{best.meters} m</b>
-          <span>{t('最高分')}</span><b>{String(best.score).padStart(7, '0')}</b>
-        {/if}
-      </div>
+      <p class="desc">{open ? current.specialDesc : ''}</p>
       <button type="button" class="vbtn small random" onclick={randomPick}>{t('隨機')}</button>
+    </div>
+
+    <div class="roster panel">
+      <CharacterGrid bind:this={grid} bind:cursor columns={6} onpick={(c) => pick(c)} />
     </div>
   </div>
 
@@ -101,7 +86,7 @@
     <BackButton onclick={goBack} />
     <ControlHint extra={ui.input === 'touch' ? t('點一下看資料，再點一下決定') : ''} />
     <button type="button" class="vbtn primary" bind:this={startButton} disabled={!open} onclick={() => pick()}>
-      {start === 'level' ? t('選關卡') : t('出發！')}
+      {start === 'level' ? t('選擇關卡') : t('開始跑')}
     </button>
   {/snippet}
 </ScreenFrame>
@@ -110,144 +95,125 @@
   .select {
     flex: 1;
     display: grid;
-    grid-template-columns: 30cqw 27cqw 1fr;
-    grid-template-rows: minmax(0, 1fr);
-    gap: 1.6cqh 1.8cqw;
+    grid-template-columns: 1fr 38cqw;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1.6cqh 2cqw;
     min-height: 0;
   }
-  .roster {
-    display: flex;
-    min-height: 0;
-  }
-  /* 名冊：4 列平均分高度，格子跟著縮，不會被底下的席位蓋住 */
-  .roster :global(.grid) {
-    gap: 1.2cqh 1cqw;
-    grid-template-rows: repeat(4, minmax(0, 1fr));
-    align-content: stretch;
-    min-height: 0;
-  }
-  .roster :global(.card) {
-    aspect-ratio: auto;
-    min-height: 0;
-  }
-
-  /* 中間的大頭像：網點底的漫畫格，左下壓一個毛筆名字 */
+  /* 大幅奔跑姿態：踩在一條晴空藍的速度帶上 */
   .hero {
     position: relative;
-    border: 0.42cqh solid var(--navy);
-    background:
-      radial-gradient(rgba(40, 127, 120, 0.35) 22%, transparent 26%) 0 0 / 1.2cqh 1.2cqh,
-      linear-gradient(160deg, #d7e8e2, #f5efdf 70%);
-    overflow: hidden;
+    min-height: 0;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    min-height: 0;
   }
-  .hero img {
+  .swoosh {
     position: absolute;
-    left: 50%;
-    bottom: 0;
-    height: 100%;
-    translate: -50% 0;
-    animation: slide 0.18s ease-out;
+    left: -3cqw;
+    right: 0;
+    bottom: 2cqh;
+    height: 11cqh;
+    border-radius: 0 999px 999px 0;
+    background:
+      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7) 30%, transparent 31%, transparent 60%, rgba(255, 255, 255, 0.6) 61%, transparent 75%) 0 30% / 100% 0.6cqh no-repeat,
+      linear-gradient(90deg, rgba(35, 181, 232, 0), var(--sky) 40%, #8fdcf7);
+    transform: skewY(-4deg);
   }
-  .hero img.lock {
-    height: 30%;
-    bottom: 35%;
+  .hero-run {
+    position: relative;
+    margin-bottom: -2cqh;
+    animation: in 0.25s ease-out;
+  }
+  .hero .lock {
+    position: relative;
+    height: 20cqh;
+    margin-bottom: 8cqh;
     opacity: 0.6;
   }
-  .name-brush {
-    position: relative;
-    align-self: flex-end;
-    margin: 0 auto 1.6cqh 1.6cqh;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .name-brush b {
-    background: var(--navy);
-    color: var(--on-dark);
-    font-size: 6cqh;
-    font-style: italic;
-    font-weight: 900;
-    padding: 0 3cqh 0 1.6cqh;
-    line-height: 1.2;
-    clip-path: polygon(0 10%, 6% 0, 94% 8%, 100% 30%, 96% 100%, 4% 92%);
-  }
-  .name-brush small {
-    margin-top: 0.4cqh;
-    background: var(--cream);
-    border: 0.25cqh solid var(--navy);
-    padding: 0.2cqh 1.2cqh;
-    font-size: 2cqh;
-    font-weight: 800;
-    transform: rotate(-2deg);
+  @keyframes in {
+    from {
+      opacity: 0.3;
+      transform: translateX(-3cqw);
+    }
   }
 
   .info {
+    padding: 2cqh 2.6cqw 2cqh;
+    gap: 1cqh;
+    align-items: flex-start;
+  }
+  .mode-pill {
+    align-self: flex-end;
     display: flex;
-    flex-direction: column;
-    gap: 0.7cqh;
-    min-height: 0;
-    min-width: 0;
-  }
-  .ink-tab {
-    align-self: flex-start;
-    margin: 0;
-    padding: 0.4cqh 5cqh 0.4cqh 1.8cqh;
-    background: var(--navy);
-    color: var(--on-dark);
-    font-size: 3.2cqh;
-    font-weight: 900;
-    letter-spacing: 0.3em;
-    clip-path: polygon(0 8%, 5% 0, 88% 6%, 100% 0, 95% 50%, 100% 100%, 3% 94%);
-  }
-  .special {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2cqh;
-    padding: 0.3cqh 0 0.3cqh 1cqw;
-    border-left: 0.8cqh solid var(--sp);
-  }
-  .special b {
-    font-size: 2.4cqh;
-    font-weight: 900;
-  }
-  .special b span {
-    margin-right: 1cqw;
-    padding: 0.1cqh 0.8cqw;
-    background: var(--navy);
-    color: var(--on-dark);
-    font-size: 1.9cqh;
-  }
-  .special small {
-    font-size: 1.9cqh;
-    line-height: 1.35;
-  }
-  .settings {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 0.5cqh 1.6cqw;
+    gap: 1.4cqh;
     align-items: center;
-    font-size: 2.3cqh;
+    padding: 0.3cqh 1.8cqh;
+    border: 0.25cqh solid var(--teal);
+    border-radius: 999px;
+    color: var(--teal);
     font-weight: 900;
+    font-size: 2cqh;
+  }
+  .mode-pill b {
+    color: var(--gold-deep);
+  }
+  .name {
+    margin: 0;
+    font-size: 9cqh;
+    color: var(--navy);
+  }
+  .intro {
+    margin: 0;
+    font-weight: 800;
+    font-size: 2.2cqh;
+    color: var(--navy-soft);
+  }
+  .ability {
+    display: flex;
+    align-items: center;
+    gap: 1.2cqh;
+    margin-top: 0.6cqh;
+  }
+  .ability .pill {
+    padding: 0.2cqh 1.4cqh;
+    border-radius: 999px;
+    background: var(--teal);
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.9cqh;
+  }
+  .ability b {
+    font-size: 3.6cqh;
+    font-weight: 900;
+    color: var(--teal);
+    border-bottom: 0.5cqh solid var(--sp);
+  }
+  .desc {
+    margin: 0;
+    font-weight: 800;
+    font-size: 2.6cqh;
+    line-height: 1.45;
   }
   .random {
+    margin-top: auto;
     align-self: flex-end;
   }
-  .poses {
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    min-height: 18cqh;
-    border-bottom: 0.2cqh solid var(--navy);
-  }
 
-  @keyframes slide {
-    from {
-      opacity: 0.4;
-      transform: translateX(1.4cqh);
-    }
+  .roster {
+    grid-column: 1 / -1;
+    padding: 1.2cqh 1.4cqw;
+    flex-direction: row;
+  }
+  .roster :global(.grid) {
+    gap: 1cqh 0.8cqw;
+  }
+  .roster :global(.card) {
+    aspect-ratio: auto;
+    height: 12.6cqh;
+  }
+  /* 名冊格子比較寬：臉放在中間 */
+  .roster :global(.card img) {
+    object-position: center 24%;
   }
 </style>

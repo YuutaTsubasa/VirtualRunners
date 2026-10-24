@@ -72,14 +72,20 @@
     gap: 1.4cqh;
     align-content: center;
   }
+  /* 還沒解鎖：深墨藍底＋鎖，不露出是誰 */
   .lock {
     flex: 1;
+    min-height: 0;
     display: grid;
     place-items: center;
-    background: #4a4f5a;
+    background: linear-gradient(#3f6577, #163a4b);
   }
   .lock img {
-    width: 55%;
+    width: auto;
+    height: 60%;
+    max-height: 6cqh;
     flex: none;
+    background: none;
+    object-fit: contain;
   }
 </style>

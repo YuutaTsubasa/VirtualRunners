@@ -1,0 +1,109 @@
+{
+  "tool": "built-in image_gen",
+  "selected": [
+    "00-brand-system-final",
+    "01-title-menu",
+    "02-character-select-final",
+    "03-stage-map-final",
+    "04-gameplay-hud",
+    "05-stage-clear"
+  ],
+  "history": [
+    {
+      "name": "00-brand-system",
+      "prompt": "Use case: logo-brand / ui-mockup. Premium polished videogame UI concept for Virtual Runners, a joyful 1990s anime side-scrolling runner with existing cel-painted chibi characters. Brand '晴空跑道': bright open SKY, CLOUD WHITE and SUNSHINE ORANGE. Palette #23B5E8, #116F95, #FF8A3D, #FFFFFF, #ECF8FC, dark text #163A4B, reward yellow #F5C949. Rounded wayfinding signs, circular route nodes, pill-shaped distance markers, thin deep-lake-blue outlines and soft short shadows. Clear spacious hierarchy, large readable Traditional Chinese, functional consistent UI. Flat cel colors, no chrome or metallic letters, no black brush panels, no volleyball/sports-team shield, no navy-gold theme, no app-store ad/purchases, no floating confetti everywhere. Clean typography, no illegible tiny labels. Full-bleed landscape 16:9 screen, preferably 1920x1080 or higher, no device frame. Create a single professional BRAND AND UI COMPONENT CONCEPT BOARD on pale sky-white background. Top 55%: a large bespoke CHINESE LOGO reading exactly '虛擬跑跑樂' with smaller 'VIRTUAL RUNNERS' below. 虛擬 is smaller but readable, 跑跑樂 large round chunky upright playful lettering, first 跑 orange, second 跑 cyan, 樂 orange, subtle step-height stagger suggesting running. Thin deep blue contour with white negative spaces, flat two-tone shading, NO yellow metallic bevel, no orbit swoosh or enclosing badge. Tiny jump arc with two round route nodes above the two 跑, never crosses glyphs. Leave airy whitespace. Bottom 45% neatly arranged UI component samples with clear gutters: orange rounded primary button '開始跑' dark ink text with right arrow; white/blue selected button '關卡模式' with focus ring and pointer; muted locked node with lock icon; heart trio; gold coin count '042'; small route line linking numbered circular nodes '1-1' '1-2' '1-3' and a finish flag. Along bottom a tasteful six-color palette strip using cyan, deep lake blue, orange, white, pale sky, dark ink. Components feel like friendly route signs, no character illustration necessary. The title logo is the hero and all samples share one coherent system. Beautiful finished design presentation, NOT sketch, no explanatory paragraphs.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-01d5374d-5524-4ca5-bf44-6d52a0ec9477.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "00-brand-system-final",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png"
+      ],
+      "prompt": "Precise text-only edit of this UI concept board. In the disabled pale blue button near the middle-right, replace the current four Chinese characters 挑戰模式 with exactly '尚未解鎖'. Preserve the lock icon. Preserve EVERYTHING ELSE exactly: complete logo 虛擬跑跑樂 and English VIRTUAL RUNNERS, all colors, button shapes, palette codes, route line, hearts, coin, spacing, sky background, size and composition. Do not redraw or change any other text. This is a disabled-state sample, not a new game mode.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-7aca0cd7-24a3-4077-a01c-cd3e6dd91a66.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system-final.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "01-title-menu",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/sources/xiaocui__run3_v2.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/sources/aming__run3_v2.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/sources/xiaochun__run3_v2.png"
+      ],
+      "prompt": "Use case: ui-mockup. Premium polished videogame UI concept for Virtual Runners, a joyful 1990s anime side-scrolling runner with existing cel-painted chibi characters. Brand '晴空跑道': bright open SKY, CLOUD WHITE and SUNSHINE ORANGE. Palette #23B5E8, #116F95, #FF8A3D, #FFFFFF, #ECF8FC, dark text #163A4B, reward yellow #F5C949. Rounded wayfinding signs, circular route nodes, pill-shaped distance markers, thin deep-lake-blue outlines and soft short shadows. Clear spacious hierarchy, large readable Traditional Chinese, functional consistent UI. Flat cel colors, no chrome or metallic letters, no black brush panels, no volleyball/sports-team shield, no navy-gold theme, no app-store ad/purchases, no floating confetti everywhere. Clean typography, no illegible tiny labels. Full-bleed landscape 16:9 screen, preferably 1920x1080 or higher, no device frame. References: image1 is approved branding, UI shapes, typography and logo. Images2-4 are EXACT character identities/outfits: teal twin ponytail schoolgirl Xiaocui, black-haired red-jacket boy Aming, orange-ponytail blue-athletic girl Xiaochun. Create a complete beautiful TITLE MENU screen. Huge airy cyan sky, white clouds, a sunlit white city and a winding elevated stone running path receding into distant green hills. Top left clear sky contains the logo '虛擬跑跑樂' and 'VIRTUAL RUNNERS', same lettering and colors as image1, about 42% screen width. Right middle: three referenced chibi heroes sprint RIGHT together joyfully, Xiaocui foreground, other two slightly behind. Entire bodies visible, preserve clothes and hairstyles. NO fighting or ball sports. Central-left scenery remains airy, route links the scene to bottom navigation. Bottom 26% is a clean pale sky dock, horizontal menu: largest orange rounded route sign '單機遊玩' with small '開始冒險' and arrow, second white/blue sign '開設房間', third white/blue '加入房間', two compact labeled utility controls '操作說明' and '設定'. Exactly these five menu functions. Bottom-left tiny but legible keyboard/gamepad hints '選擇' '確認'. One selected orange button, no repeating all-orange buttons. Screen looks like a real polished game title, not a presentation board. Bright relaxing scene plus energetic running; wide readability, no text over faces, no event/shop/rewards tabs.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-0a8adf3f-12cd-4637-a00d-3a8a2dbb8411.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/01-title-menu.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "02-character-select",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/character-reference.jpg",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/sources/xiaocui__run3_v2.png"
+      ],
+      "prompt": "Use case: ui-mockup. Premium polished videogame UI concept for Virtual Runners, a joyful 1990s anime side-scrolling runner with existing cel-painted chibi characters. Brand '晴空跑道': bright open SKY, CLOUD WHITE and SUNSHINE ORANGE. Palette #23B5E8, #116F95, #FF8A3D, #FFFFFF, #ECF8FC, dark text #163A4B, reward yellow #F5C949. Rounded wayfinding signs, circular route nodes, pill-shaped distance markers, thin deep-lake-blue outlines and soft short shadows. Clear spacious hierarchy, large readable Traditional Chinese, functional consistent UI. Flat cel colors, no chrome or metallic letters, no black brush panels, no volleyball/sports-team shield, no navy-gold theme, no app-store ad/purchases, no floating confetti everywhere. Clean typography, no illegible tiny labels. Full-bleed landscape 16:9 screen, preferably 1920x1080 or higher, no device frame. Reference1 visual language, reference2 EXACT roster identities in order top row xiaocui,yuehua,aming,tangtang,xiaochun; bottom row lanjie,cangya,jinye,leo,alie. Reference3 selected runner Xiaocui exact outfit. Create full game CHARACTER SELECT screen. Top-left small round back arrow and title '選擇跑者', top-right small pill '關卡模式'. Left-middle 55%: large Xiaocui sprinting right over a curved blue route stripe, full body, emerald twin ponytails pink bows sailor white-and-teal top pink bow teal skirt teal sneakers. Right-middle clean white rounded capability panel: large '小翠', subtitle '幸運磁鐵', magnet icon and clear sentence '附近的金幣會自己飛過來。'. Bottom-right large orange CTA '選擇關卡' with arrow. Lower-left/middle: neatly organized TWO ROWS of portrait tiles, exactly 11 slots total, row1 SIX slots Xiaocui,Yuehua,Aming,Tangtang,Xiaochun,Lanjie; row2 FIVE slots Cangya,Jinye,Leo,Alie,one dark silhouette LOCK slot. Use the provided roster faces with distinctive colors and accessories, selected Xiaocui has orange highlight and cyan focus outline; lock slot stays anonymous, no Ayi reveal. Do not invent character stats, no ability meters, no currency, no team slots, no 1P-4P strips, no VS. Small bottom hints '返回' '確認'. Plenty breathing room, no scenery behind text. Full polished screenshot, not a collage of screens.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-b91d41e6-077d-48dd-8c41-bf136a38d429.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/02-character-select.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "03-stage-map",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png"
+      ],
+      "prompt": "Use case: ui-mockup. Premium polished videogame UI concept for Virtual Runners, a joyful 1990s anime side-scrolling runner with existing cel-painted chibi characters. Brand '晴空跑道': bright open SKY, CLOUD WHITE and SUNSHINE ORANGE. Palette #23B5E8, #116F95, #FF8A3D, #FFFFFF, #ECF8FC, dark text #163A4B, reward yellow #F5C949. Rounded wayfinding signs, circular route nodes, pill-shaped distance markers, thin deep-lake-blue outlines and soft short shadows. Clear spacious hierarchy, large readable Traditional Chinese, functional consistent UI. Flat cel colors, no chrome or metallic letters, no black brush panels, no volleyball/sports-team shield, no navy-gold theme, no app-store ad/purchases, no floating confetti everywhere. Clean typography, no illegible tiny labels. Full-bleed landscape 16:9 screen, preferably 1920x1080 or higher, no device frame. Use reference for exact color/style/rounded signs. Create a single polished LEVEL SELECT screen, title '關卡地圖', illustrated overview of white city rooftops, clocktower, bridges, canals, green trees and gentle hills under a clear blue sky. A curved elevated route winds through the city, with EXACTLY EIGHT prominent connected circular nodes, in ordered reading sequence '1-1','1-2','1-3','1-4','1-5','1-6','1-7','1-8'. Nodes1 and2 completed blue with three gold stars; node3 selected orange with focus ring; nodes4-7 muted blue-gray with small locks yet number labels visible; node8 has lock and small boss silhouette icon. NO duplicate stage numbers, NO extra large nodes. Top row SIX compact world tabs with distinct icons and names: '白色都市' selected, '草原森林', '水下世界', '冰山', '火炎礦坑', '邪惡城堡'. Lower right overlay only 24% wide white info card, not obscuring route: '1-3' '天台夜路', three empty star outlines, orange '開始跑' button. Lower-left back pill '返回'. City route is main visual, labels crisp, icon-based future locked worlds. No combat or generic mobile game shop bars; this is existing 48-level runner with 8 levels per world. Full 16:9 UI screenshot, no device bezel.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-dbe859f3-5913-436e-a2e9-676d4873e493.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/03-stage-map.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "04-gameplay-hud",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/sources/xiaocui__run3_v2.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/anime90-runner-props/previews/all-props.jpg"
+      ],
+      "prompt": "Use case: ui-mockup. Premium polished videogame UI concept for Virtual Runners, a joyful 1990s anime side-scrolling runner with existing cel-painted chibi characters. Brand '晴空跑道': bright open SKY, CLOUD WHITE and SUNSHINE ORANGE. Palette #23B5E8, #116F95, #FF8A3D, #FFFFFF, #ECF8FC, dark text #163A4B, reward yellow #F5C949. Rounded wayfinding signs, circular route nodes, pill-shaped distance markers, thin deep-lake-blue outlines and soft short shadows. Clear spacious hierarchy, large readable Traditional Chinese, functional consistent UI. Flat cel colors, no chrome or metallic letters, no black brush panels, no volleyball/sports-team shield, no navy-gold theme, no app-store ad/purchases, no floating confetti everywhere. Clean typography, no illegible tiny labels. Full-bleed landscape 16:9 screen, preferably 1920x1080 or higher, no device frame. Reference1 UI system, reference2 EXACT playable Xiaocui, reference3 established obstacle art shapes. Create a believable side-on 2D SIDE-SCROLLING GAMEPLAY screenshot with compact usable HUD. Side view ONLY, not road receding into screen or third-person racer. White city side-scrolling rooftops and distant clocktower under sunny sky; wide horizontal pale stone platform across lower 22%, a narrow gap at x62%, next platform right. Tiny Xiaocui chibi runner at x25%, feet on platform, about 18% of screen height, facing right. Ahead to right, gold star coins arc above a three-spike orange/white barrier; farther a red spring beyond the gap, recognizable from props ref. Large open forward view free of UI at screen middle. HUD strictly within top14%: left white rounded pill with Xiaocui portrait, '小翠' and exactly 3 red hearts; center slim route plaque with '1-1 白色大道' and progress line at 35% ending in checkered flag; right white pill with gold coin '42 / 80', score '0042600', separate small pause button. Numbers dark ink, consistent thin blue borders. No rank board, no speed/meter counters because level mode, no boss bar, no extra giant central title, no RPG skills. Bottom-left understated tiny keyboard keycaps and words '↑ 跳' '↓ 滑' '→ 衝' above safe margin; no huge touch buttons in this desktop concept. Playfield uncluttered and realistic collision space. Keep background calmer than foreground. Full single screenshot.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-41c8d844-94e2-4ea6-8c8a-7f4ac0846a74.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/04-gameplay-hud.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "05-stage-clear",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/00-brand-system.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/sources/xiaocui__goal.png",
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/anime90-runner/anime90-runner-props/props/runner/goal.png"
+      ],
+      "prompt": "Use case: ui-mockup. Premium polished videogame UI concept for Virtual Runners, a joyful 1990s anime side-scrolling runner with existing cel-painted chibi characters. Brand '晴空跑道': bright open SKY, CLOUD WHITE and SUNSHINE ORANGE. Palette #23B5E8, #116F95, #FF8A3D, #FFFFFF, #ECF8FC, dark text #163A4B, reward yellow #F5C949. Rounded wayfinding signs, circular route nodes, pill-shaped distance markers, thin deep-lake-blue outlines and soft short shadows. Clear spacious hierarchy, large readable Traditional Chinese, functional consistent UI. Flat cel colors, no chrome or metallic letters, no black brush panels, no volleyball/sports-team shield, no navy-gold theme, no app-store ad/purchases, no floating confetti everywhere. Clean typography, no illegible tiny labels. Full-bleed landscape 16:9 screen, preferably 1920x1080 or higher, no device frame. Reference1 UI brand, reference2 Xiaocui goal pose exact identity, reference3 finish gate. Create a single LEVEL CLEAR results screen. Bright sky-white city finish area softly simplified in background. Left 42%: full-body Xiaocui running while raising V fingers joyfully, preserve reference hair/clothes/shoes, checkered finish gate behind her, no balls. Right-center 48%: beautiful white rounded route-sign results panel, top orange/blue heading '過關！', below '1-1 白色大道'. Exactly THREE large gold stars in a row. Clean aligned results rows '分數' '0042600' and '金幣' '68 / 80'. Three compact checked achievement lines: '完成關卡', '金幣達 70%', '全程無傷'. Bottom main large orange button '下一關' arrow, below two quiet white/blue buttons '再跑一次' and '關卡地圖'. All Traditional Chinese legible, generous padding, strong hierarchy. Short arcs and finish-line cues only at panel corners, minimal celebratory dots. No invented currency balance, loot boxes, daily rewards, rank medals or three-place podium. Screenshot fills16:9. A joyful confident end to a run, coherent with title and HUD.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-b5ad00d3-8e21-4349-bf55-364d43c6c3c4.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/05-stage-clear.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "02-character-select-final",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/02-character-select.png"
+      ],
+      "prompt": "Precise text correction only. Preserve this complete UI concept screenshot and every portrait and composition exactly. The blond crowned prince portrait in the BOTTOM ROW THIRD tile must have the Traditional Chinese name '雷歐' (Thunder character 雷, followed by 歐), not 里歐. Change only that name label to 雷歐. Do not change other names or characters. All other labels: 小翠, 月華, 阿明, 糖糖, 小春, 蘭姐, 蒼牙, 金爺, 阿烈, ??? stay as they are. Keep the main selected character name 小翠 and ability 幸運磁鐵 unchanged. No new elements.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-ab76ef0d-f39b-4bb1-8ca9-41d1c32bd7ce.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/02-character-select-final.png",
+      "tool": "built-in image_gen"
+    },
+    {
+      "name": "03-stage-map-final",
+      "refs": [
+        "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/03-stage-map.png"
+      ],
+      "prompt": "Precise single-text correction to this UI screenshot. The FIRST locked route node immediately to the upper right of the orange 1-3 node, near x53%,y56%, currently wrongly says 1-5. Change ONLY that node label to '1-4'. The next node up and right remains '1-5'. Thus the eight connected route nodes must read in order 1-1,1-2,1-3,1-4,1-5,1-6,1-7,1-8. Preserve all node positions, all artwork, all other text, world tabs, selected level card, colors and composition exactly. Do not alter any other element.",
+      "source": "C:\\Users\\User\\.codex\\generated_images\\01a16d2c-7d71-7783-90fb-426a26f466ae\\exec-88b25d08-b618-4715-850f-428d482213e8.png",
+      "output": "C:/Users/User/Repo/OtherRetroGames/Runners/art-work/runner-ui-concept-v1/03-stage-map-final.png",
+      "tool": "built-in image_gen"
+    }
+  ]
+}

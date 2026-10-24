@@ -1,18 +1,21 @@
 <script>
-  // 關卡地圖：左邊六大關，右邊這一大關的 8 小關（星星、上鎖、魔王關）。
-  // 過了前一關才能玩下一關；星星：過關 1 顆、金幣七成以上 1 顆、沒受傷 1 顆。
+  // 關卡地圖（art-work/runner-ui-concept-v1/03-stage-map）：上面六個世界的分頁（小風景＋名字，沒開的上鎖），
+  // 主區是這個世界的風景上一條彎彎的路線、8 個節點（1-1～1-8，最後是魔王），右下是選中那一關的詳細牌＋「開始跑」。
+  // 節點：過關的橘色＋星星、目前可以玩的晴空藍、上鎖的灰色＋鎖。
+  // 操作：方向鍵／滑鼠在節點間移動就會換詳細牌；Enter／點選中的節點再點一次＝開始跑。
   import { onMount, untrack } from 'svelte';
   import { WORLDS, WORLD_TIPS, stageLabel } from '../game/stages.js';
   import { STAGE_COUNT } from '../game/constants.js';
   import { starsOf, stageOpen, worldOpen, nextStage, totalStars, MAX_STARS } from '../game/progress.js';
   import { getCharacter } from '../game/characters.js';
   import { play } from '../game/audio.js';
+  import { asset } from '../art-style.svelte.js';
   import { ui } from '../ui.svelte.js';
   import ScreenFrame from './ScreenFrame.svelte';
   import BackButton from './BackButton.svelte';
   import ControlHint from './ControlHint.svelte';
   import WorldScene from './WorldScene.svelte';
-  import SpritePose from './SpritePose.svelte';
+  import RunnerPose from './RunnerPose.svelte';
   import { t } from '../i18n.svelte.js';
 
   // at：一開始停在哪一關（沒給就停在下一個還沒過的關）；onpick(world, stage)
@@ -20,68 +23,145 @@
 
   const first = untrack(() => at) ?? nextStage();
   let world = $state(first.world);
-  let tiles;
+  let stage = $state(first.stage);
+  let nodes;
   const runner = $derived(getCharacter(character));
   const stars = totalStars();
 
-  onMount(() => {
-    tiles?.querySelector(`[data-stage="${first.stage}"]`)?.focus({ preventScroll: true });
-  });
+  // 路線上 8 個節點的位置（地圖寬高的百分比）：從左下彎彎地往右上，最後是魔王；右下留給詳細牌
+  const SPOTS = [
+    [7, 72],
+    [17, 56],
+    [28, 70],
+    [39, 52],
+    [50, 64],
+    [60, 42],
+    [72, 26],
+    [88, 20],
+  ];
+  // 經過節點的平滑曲線（每兩點之間用中點當控制點）
+  const path = (() => {
+    let d = `M ${SPOTS[0][0]} ${SPOTS[0][1]}`;
+    for (let i = 1; i < SPOTS.length; i++) {
+      const [x0, y0] = SPOTS[i - 1];
+      const [x1, y1] = SPOTS[i];
+      d += ` C ${(x0 + x1) / 2} ${y0}, ${(x0 + x1) / 2} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  })();
+
+  onMount(() => focusStage(stage));
+
+  function focusStage(s) {
+    nodes?.querySelector(`[data-stage="${s}"]`)?.focus({ preventScroll: true });
+  }
 
   function chooseWorld(w) {
     if (!worldOpen(w)) return play('deny');
-    if (world !== w) play('move');
+    if (world === w) return;
+    play('move');
     world = w;
+    // 停在這個世界第一個還沒過的關
+    const s = Array.from({ length: STAGE_COUNT }, (_, i) => i).find((i) => stageOpen(w, i) && !starsOf(w, i));
+    stage = s ?? 0;
   }
 
-  function choose(s) {
-    if (!stageOpen(world, s)) return play('deny');
-    play('select');
-    onpick(world, s);
+  function look(s) {
+    if (stage !== s && (ui.input === 'key' || ui.input === 'pad')) play('move');
+    stage = s;
   }
+
+  function tapNode(s) {
+    if (!stageOpen(world, s)) return play('deny');
+    // 滑鼠／觸控：第一下選、第二下（或按「開始跑」）出發；鍵盤手把按 Enter 直接出發
+    if (stage !== s && (ui.input === 'pointer' || ui.input === 'touch')) {
+      stage = s;
+      play('move');
+      return;
+    }
+    go();
+  }
+
+  function go() {
+    if (!stageOpen(world, stage)) return play('deny');
+    play('select');
+    onpick(world, stage);
+  }
+
+  const open = $derived(stageOpen(world, stage));
+  const got = $derived(starsOf(world, stage));
+  const boss = $derived(stage === STAGE_COUNT - 1);
 </script>
 
 <ScreenFrame title={t('關卡地圖')} subtitle={t('★ {n} / {max}', { n: stars, max: MAX_STARS })} {world}>
   <div class="map">
     <div class="worlds">
       {#each WORLDS as w, i (w.id)}
+        {@const unlocked = worldOpen(i)}
         <button
           type="button"
-          class="vbtn plain world"
+          class="world"
           class:active={i === world}
-          disabled={!worldOpen(i)}
-          onfocus={() => chooseWorld(i)}
-          onmouseenter={() => ui.input === 'pointer' && worldOpen(i) && (world = i)}
+          class:locked={!unlocked}
+          aria-disabled={!unlocked}
+          onmouseenter={() => ui.input === 'pointer' && unlocked && chooseWorld(i)}
           onclick={() => chooseWorld(i)}
         >
-          <span class="no">{i + 1}</span>
-          <b>{worldOpen(i) ? t(w.name) : '？？？'}</b>
-          <small>{Array.from({ length: STAGE_COUNT }, (_, s) => starsOf(i, s)).reduce((a, b) => a + b, 0)}★</small>
+          <span class="thumb"><WorldScene world={i} scroll={false} /></span>
+          {#if !unlocked}<img class="lock" src={asset('ui/icons/lock.webp')} alt="" />{/if}
+          <b>{unlocked ? t(w.name) : '？？？'}</b>
         </button>
       {/each}
     </div>
 
-    <div class="detail">
-      <div class="banner">
-        <WorldScene {world} />
-        <div class="banner-text">
-          <h3>{t(WORLDS[world].name)}</h3>
-          <p>{t(WORLD_TIPS[world])}</p>
-        </div>
-        <div class="runner"><SpritePose character={runner} pose="run1" size="22cqh" /></div>
-      </div>
-      <div class="tiles" bind:this={tiles}>
-        {#each { length: STAGE_COUNT } as _, s (s)}
-          {@const open = stageOpen(world, s)}
+    <div class="route">
+      <WorldScene {world} />
+      <div class="veil"></div>
+      <svg class="line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d={path} class="road" />
+        <path d={path} class="dash" />
+      </svg>
+      <div class="nodes" bind:this={nodes}>
+        {#each SPOTS as [x, y], s (s)}
+          {@const isOpen = stageOpen(world, s)}
           {@const n = starsOf(world, s)}
-          {@const boss = s === STAGE_COUNT - 1}
-          <button type="button" class="tile" class:boss class:locked={!open} class:cleared={n > 0} data-stage={s} aria-disabled={!open} onclick={() => choose(s)}>
-            <span class="label">{stageLabel(world, s)}</span>
-            <b>{open ? t(WORLDS[world].subs[s]) : '？？？'}</b>
-            {#if boss}<span class="boss-tag">{t('魔王')}：{open ? t(WORLDS[world].boss.name) : '？？？'}</span>{/if}
-            <span class="stars">{#each [0, 1, 2] as i (i)}<i class:on={i < n}>★</i>{/each}</span>
+          <button
+            type="button"
+            class="node"
+            class:cleared={n > 0}
+            class:locked={!isOpen}
+            class:boss={s === STAGE_COUNT - 1}
+            class:sel={s === stage}
+            data-stage={s}
+            style="left: {x}%; top: {y}%"
+            aria-label={`${stageLabel(world, s)} ${isOpen ? t(WORLDS[world].subs[s]) : ''}`}
+            onfocus={() => look(s)}
+            onmouseenter={() => ui.input === 'pointer' && (stage = s)}
+            onclick={() => tapNode(s)}
+          >
+            {#if !isOpen}
+              <img src={asset('ui/icons/lock.webp')} alt="" />
+            {:else if s === STAGE_COUNT - 1}
+              <span class="crown">♛</span>
+            {/if}
+            <span class="no">{stageLabel(world, s)}</span>
+            {#if n > 0}<span class="mini-stars">{'★'.repeat(n)}{'☆'.repeat(3 - n)}</span>{/if}
           </button>
         {/each}
+        {#key `${world}-${stage}`}
+          <div class="me" style="left: {SPOTS[stage][0]}%; top: {SPOTS[stage][1]}%">
+            <RunnerPose character={runner} size="13cqh" />
+          </div>
+        {/key}
+      </div>
+
+      <div class="detail panel">
+        <span class="label">{stageLabel(world, stage)}</span>
+        <b class="stage-name">{open ? t(WORLDS[world].subs[stage]) : '？？？'}</b>
+        {#if boss}<span class="boss-tag">{t('魔王')}：{open ? t(WORLDS[world].boss.name) : '？？？'}</span>{/if}
+        <span class="stars">{#each [0, 1, 2] as i (i)}<i class:on={i < got}>★</i>{/each}</span>
+        <p class="tip">{t(WORLD_TIPS[world])}</p>
+        <button type="button" class="vbtn primary go" disabled={!open} data-gamepad-skip onclick={go}>{t('開始跑')}</button>
       </div>
     </div>
   </div>
@@ -96,155 +176,239 @@
 <style>
   .map {
     flex: 1;
-    display: grid;
-    grid-template-columns: 24cqw 1fr;
-    gap: 1.8cqw;
-    min-height: 0;
-  }
-  .worlds {
-    display: flex;
-    flex-direction: column;
-    gap: 1cqh;
-    min-height: 0;
-  }
-  .world {
-    --cut: 1.6cqh;
-    flex: 1;
-    justify-content: flex-start;
-    gap: 1.4cqw;
-    padding: 0 1.6cqw;
-    letter-spacing: 0;
-    text-indent: 0;
-    min-height: 0;
-  }
-  .world.active {
-    --face: var(--accent);
-    --fg: var(--on-dark);
-  }
-  .world .no {
-    font-size: 4cqh;
-    font-weight: 900;
-    width: 4cqh;
-  }
-  .world b {
-    flex: 1;
-    font-size: 3cqh;
-    text-align: left;
-  }
-  .world small {
-    font-size: 2.2cqh;
-    font-weight: 900;
-  }
-  .detail {
     display: flex;
     flex-direction: column;
     gap: 1.4cqh;
     min-height: 0;
   }
-  .banner {
-    position: relative;
-    height: 22cqh;
-    border: 0.35cqh solid var(--navy);
-    overflow: hidden;
-    flex: none;
-  }
-  .banner-text {
-    position: absolute;
-    left: 1.6cqw;
-    bottom: 1.4cqh;
-    max-width: 60%;
-  }
-  .banner h3 {
-    display: inline-block;
-    margin: 0 0 0.6cqh;
-    background: var(--navy);
-    color: var(--on-dark);
-    font-size: 4cqh;
-    padding: 0.2cqh 2cqh;
-  }
-  .banner p {
-    margin: 0;
-    background: var(--cream);
-    border: 0.25cqh solid var(--navy);
-    padding: 0.4cqh 1.2cqh;
-    font-weight: 800;
-    font-size: 2.1cqh;
-  }
-  .runner {
-    position: absolute;
-    right: 2cqw;
-    bottom: -1cqh;
-  }
-  .tiles {
-    flex: 1;
+  .worlds {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 1.2cqh 1.2cqw;
-    min-height: 0;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1cqw;
   }
-  .tile {
+  .world {
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.4cqh;
-    padding: 1cqh 1.2cqw;
-    border: 0.35cqh solid var(--navy);
-    background: var(--paper-white);
-    color: var(--navy);
+    align-items: center;
+    padding: 0.5cqh 0.5cqh 0.4cqh;
+    border: var(--line) solid var(--sky-line);
+    border-radius: 1.6cqh;
+    background: #fff;
     font: inherit;
-    cursor: pointer;
-    text-align: left;
-    min-height: 0;
+    color: var(--navy);
+    box-shadow: var(--soft-shadow);
+    transition: transform 0.08s;
   }
-  .tile:focus-visible,
-  .tile:hover {
-    outline: 0.5cqh solid var(--accent);
-    outline-offset: 0.2cqh;
+  .world:hover:not(.locked) {
+    transform: translateY(-0.3cqh);
   }
-  .tile.cleared {
-    background: #fff4d6;
+  .world.active {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 0.3cqh var(--teal), 0 0.5cqh 0 var(--navy);
   }
-  .tile.boss {
-    background: linear-gradient(160deg, #3a2030, #1e1a2a);
-    color: var(--on-dark);
-  }
-  .tile.locked {
-    background: #d9d3c4;
-    color: rgba(32, 35, 41, 0.45);
+  .world.locked {
     cursor: not-allowed;
   }
-  .label {
-    font-size: 3.8cqh;
+  .thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 7cqh;
+    border-radius: 1.1cqh;
+    overflow: hidden;
+  }
+  .world.locked .thumb {
+    filter: grayscale(1) brightness(0.6);
+  }
+  .world .lock {
+    position: absolute;
+    top: 2cqh;
+    width: 4cqh;
+  }
+  .world b {
+    font-size: 2cqh;
     font-weight: 900;
+  }
+
+  .route {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 3cqh;
+    overflow: hidden;
+    border: var(--line) solid var(--sky-line);
+    box-shadow: var(--soft-shadow);
+  }
+  .veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(236, 248, 252, 0) 30%, rgba(236, 248, 252, 0.45));
+  }
+  .line {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .road {
+    fill: none;
+    stroke: #fff;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-width: 2.2cqh;
+    filter: drop-shadow(0 0.4cqh 0 rgba(17, 111, 149, 0.35));
+  }
+  .dash {
+    fill: none;
+    stroke: var(--sky);
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-width: 0.8cqh;
+    stroke-dasharray: 1.6cqh 1.2cqh;
+  }
+  .nodes {
+    position: absolute;
+    inset: 0;
+  }
+  /* 路線節點：圓形路牌 */
+  .node {
+    position: absolute;
+    translate: -50% -50%;
+    width: 9cqh;
+    height: 9cqh;
+    border-radius: 50%;
+    border: 0.45cqh solid var(--teal);
+    background: #fff;
+    color: var(--teal);
+    font: inherit;
+    font-weight: 900;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    box-shadow: 0 0.5cqh 0 var(--teal);
+    transition: transform 0.1s;
+    z-index: 1;
+  }
+  .node .no {
+    font-size: 2.4cqh;
     line-height: 1;
   }
-  .tile b {
-    font-size: 2.4cqh;
+  .node.cleared {
+    background: var(--gold);
+    border-color: var(--navy);
+    color: var(--navy);
+    box-shadow: 0 0.5cqh 0 var(--gold-deep);
+  }
+  .node.locked {
+    background: #dfe8ec;
+    border-color: #9bb5c2;
+    color: #7f98a5;
+    box-shadow: 0 0.5cqh 0 #9bb5c2;
+    cursor: not-allowed;
+  }
+  .node.locked img {
+    position: absolute;
+    width: 3.2cqh;
+    top: -2.2cqh;
+  }
+  .node.boss {
+    width: 11cqh;
+    height: 11cqh;
+  }
+  .crown {
+    position: absolute;
+    top: -3.4cqh;
+    font-size: 3.6cqh;
+    color: var(--red);
+    -webkit-text-stroke: 0.3cqh #fff;
+    paint-order: stroke fill;
+  }
+  .mini-stars {
+    position: absolute;
+    bottom: -3cqh;
+    font-size: 2.2cqh;
+    letter-spacing: -0.1em;
+    color: var(--gold-deep);
+    -webkit-text-stroke: 0.25cqh #fff;
+    paint-order: stroke fill;
+    white-space: nowrap;
+  }
+  /* 選中的節點：往前一點、晴空藍外環 */
+  .node.sel {
+    transform: translateY(-0.8cqh) scale(1.08);
+    outline: 0.6cqh solid var(--sky);
+    outline-offset: 0.5cqh;
+  }
+  .me {
+    position: absolute;
+    translate: -50% -100%;
+    margin-top: -4cqh;
+    pointer-events: none;
+    z-index: 2;
+    animation: hop 0.25s ease-out;
+  }
+  @keyframes hop {
+    from {
+      transform: translateY(-1.6cqh);
+    }
+  }
+
+  /* 右下的詳細牌 */
+  .detail {
+    position: absolute;
+    right: 1.6cqw;
+    bottom: 1.8cqh;
+    width: 30cqw;
+    padding: 1.4cqh 1.6cqw 1.6cqh;
+    gap: 0.6cqh;
+    align-items: flex-start;
+    z-index: 3;
+  }
+  .label {
+    padding: 0.1cqh 1.6cqh;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--navy);
     font-weight: 900;
+    font-size: 2.6cqh;
+  }
+  .stage-name {
+    font-size: 4cqh;
+    font-weight: 900;
+    line-height: 1.1;
   }
   .boss-tag {
-    font-size: 1.8cqh;
-    font-weight: 800;
-    color: #ffb3c0;
+    font-weight: 900;
+    font-size: 2cqh;
+    color: var(--red);
   }
   .stars {
     display: flex;
-    gap: 0.4cqw;
-    font-size: 3.2cqh;
-    font-style: normal;
+    gap: 0.5cqw;
+    font-size: 4cqh;
+    line-height: 1;
   }
   .stars i {
     font-style: normal;
-    color: rgba(0, 0, 0, 0.15);
-  }
-  .tile.boss .stars i {
-    color: rgba(255, 255, 255, 0.2);
+    color: #dfe8ec;
+    -webkit-text-stroke: 0.2cqh #9bb5c2;
   }
   .stars i.on {
     color: var(--gold);
-    -webkit-text-stroke: 0.15cqh var(--navy);
+    -webkit-text-stroke: 0.2cqh var(--navy);
+  }
+  .tip {
+    margin: 0;
+    font-size: 1.8cqh;
+    font-weight: 800;
+    color: var(--navy-soft);
+    line-height: 1.4;
+  }
+  .go {
+    align-self: stretch;
+    margin-top: 0.6cqh;
+    min-height: 7cqh;
+    font-size: 3.4cqh;
   }
 </style>
