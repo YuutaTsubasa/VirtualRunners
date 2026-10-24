@@ -98,13 +98,16 @@ cargo test --manifest-path crates/runner-core/Cargo.toml --release balance -- --
 
 ### 配對服務（Cloudflare Workers）
 
-程式在 `workers/signal/`，名字是 `virtual-runners-signal`。**還沒部署**：部署要用你的 Cloudflare 帳號登入（第一次 `npx wrangler login`）：
+程式在 `workers/signal/`，名字是 `virtual-runners-signal`，**已部署**（2026-10-25）：
+https://virtual-runners-signal.taiwan-mahjong-signal.workers.dev（`src/lib/site.js` 的預設值；打開 `/health` 會看到 `ok`）。
+配對服務連不上時，介面會自動藏起線上房間。改了程式要重新部署：
 
 ```bash
 npm --prefix workers/signal run deploy
 ```
 
-部署後網址應該是 `https://virtual-runners-signal.taiwan-mahjong-signal.workers.dev`（`src/lib/site.js` 的預設值；打開 `/health` 會看到 `ok`）。配對服務連不上時，介面會自動藏起線上房間。
+用量：比賽本身是 P2P、不經過這裡，只有加入房間時轉送幾則連線資訊（一次加入大約 5 個請求），
+房間開著時 WebSocket 會休眠不計費。免費方案超過每日額度只會暫時連不上、不會收費；同一個 Cloudflare 帳號的幾個遊戲共用額度。
 
 本機測試：`npm --prefix workers/signal run dev`（http://localhost:8787），在 `.env.development.local` 寫 `VITE_SIGNAL_SERVER=http://localhost:8787`。
 
