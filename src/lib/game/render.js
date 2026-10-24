@@ -372,8 +372,9 @@ const PLATFORM_SCALE = 0.5;
 const platformCache = new Map();
 function platformPatterns(g, world) {
   const id = WORLDS[world].id;
-  if (platformCache.has(id)) return platformCache.get(id);
   const img = runnerArt(`${id}-platform`);
+  // 用圖的網址當 key：換畫風時換成那個畫風的跑道
+  if (img && platformCache.has(img.src)) return platformCache.get(img.src);
   if (!ready(img)) return null;
   const w = img.naturalWidth * PLATFORM_SCALE;
   const h = img.naturalHeight * PLATFORM_SCALE;
@@ -386,7 +387,7 @@ function platformPatterns(g, world) {
   fill.height = h / 2;
   fill.getContext('2d').drawImage(img, 0, img.naturalHeight / 2, img.naturalWidth, img.naturalHeight / 2, 0, 0, w, h / 2);
   const p = { top: g.createPattern(top, 'repeat-x'), fill: g.createPattern(fill, 'repeat'), w, h };
-  platformCache.set(id, p);
+  platformCache.set(img.src, p);
   return p;
 }
 

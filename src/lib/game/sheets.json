@@ -1443,6 +1443,257 @@
           "cell": 256,
           "pixel": true
         }
+      },
+      "enemies": {
+        "city/brute": {
+          "src": "enemies/city/brute.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down",
+            "charge"
+          ],
+          "cols": 9,
+          "cell": 256,
+          "pixel": true
+        },
+        "city/knife": {
+          "src": "enemies/city/knife.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "city/thrower": {
+          "src": "enemies/city/thrower.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "city/thug": {
+          "src": "enemies/city/thug.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "forest/brute": {
+          "src": "enemies/forest/brute.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down",
+            "charge"
+          ],
+          "cols": 9,
+          "cell": 256,
+          "pixel": true
+        },
+        "forest/knife": {
+          "src": "enemies/forest/knife.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "forest/thrower": {
+          "src": "enemies/forest/thrower.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "forest/thug": {
+          "src": "enemies/forest/thug.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "sea/brute": {
+          "src": "enemies/sea/brute.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down",
+            "charge"
+          ],
+          "cols": 9,
+          "cell": 256,
+          "pixel": true
+        },
+        "sea/knife": {
+          "src": "enemies/sea/knife.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "sea/thrower": {
+          "src": "enemies/sea/thrower.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        },
+        "sea/thug": {
+          "src": "enemies/sea/thug.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "attack",
+            "hurt",
+            "fall",
+            "down"
+          ],
+          "cols": 8,
+          "cell": 256,
+          "pixel": true
+        }
+      },
+      "bosses": {
+        "city": {
+          "src": "bosses/city.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "slam",
+            "hurt",
+            "fall",
+            "down",
+            "charge"
+          ],
+          "cols": 6,
+          "cell": 384,
+          "pixel": true
+        },
+        "forest": {
+          "src": "bosses/forest.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "slam",
+            "hurt",
+            "fall",
+            "down",
+            "leap"
+          ],
+          "cols": 6,
+          "cell": 384,
+          "pixel": true
+        },
+        "sea": {
+          "src": "bosses/sea.webp",
+          "frames": [
+            "idle",
+            "walk1",
+            "walk2",
+            "windup",
+            "slam",
+            "hurt",
+            "fall",
+            "down",
+            "charge",
+            "cast"
+          ],
+          "cols": 6,
+          "cell": 384,
+          "pixel": true
+        }
       }
     }
   }
