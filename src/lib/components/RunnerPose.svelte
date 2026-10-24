@@ -2,13 +2,13 @@
   // 會跑的角色（選單用）：輪流播圖集裡的跑步格（有 run5～run8 就是 8 格，不然 run1～run4），
   // 只有 4 格時每一步身體上下起伏一點（8 格的圖本身就有起伏）。pose 給定時就停在那一格（例如過關的 goal）。減少動態效果時停在 run1。
   import { onMount } from 'svelte';
-  import SHEETS from '../game/sheets.json' with { type: 'json' };
+  import { sheetOf } from '../game/sheets.js';
   import SpritePose from './SpritePose.svelte';
 
   let { character, size = '30cqh', pose = null, fps = 16, delay = 0 } = $props();
 
   const frames = $derived.by(() => {
-    const have = SHEETS.characters?.[character.id]?.frames ?? [];
+    const have = sheetOf('characters', character.id)?.frames ?? [];
     const eight = ['run1', 'run5', 'run2', 'run6', 'run3', 'run7', 'run4', 'run8'];
     if (eight.every((f) => have.includes(f))) return eight;
     if (['run3', 'run4'].every((f) => have.includes(f))) return ['run1', 'run2', 'run3', 'run4'];

@@ -1,5 +1,5 @@
 /* ---------- 畫風外觀（skin） ----------
-   app.css 是 90 年代的介面（切角按鈕、斜線裝飾、米白面板）。其他五種風格除了換顏色，
+   app.css 是 90 年代的介面（晴空跑道：圓角路牌、膠囊、雲白面板）。其他五種風格除了換顏色，
    這裡還換掉形狀與質感：按鈕、面板、標題條、標題橫幅、提示列、輸入框、角色卡。
    每種風格只要定義下面這組 --sk-* 變數，共用規則會套上去；特別的部分再各自補。
    氣氛描述來自各風格的交件留言（art-inbox/messages）。 */
@@ -10,18 +10,23 @@
   & .vbtn {
     --face: var(--sk-face);
     clip-path: none;
-    background: transparent;
+    background: var(--face);
     border: var(--sk-btn-border);
     border-radius: var(--sk-btn-radius);
     box-shadow: var(--sk-btn-shadow);
     color: var(--sk-btn-text);
     font-family: var(--font);
   }
-  & .vbtn::before {
-    inset: 0;
-    clip-path: none;
-    border-radius: inherit;
-    background: var(--face);
+  & .vbtn:hover:not(:disabled) {
+    transform: none;
+  }
+  /* 標題畫面底部的選單列、關卡地圖的世界分頁與節點：用這個風格的面板樣子 */
+  & :is(.dock, .world) {
+    background: var(--sk-panel-bg);
+    border: var(--sk-panel-border);
+    border-radius: var(--sk-panel-radius);
+    box-shadow: var(--sk-panel-shadow);
+    color: var(--sk-btn-text);
   }
   & .vbtn:is(.gold, .active, .primary, :hover:not(:disabled)) {
     --face: var(--sk-face-on);

@@ -10,7 +10,7 @@ import { W, H, GROUND, SCREEN_X, SLOT_COLORS, COUNTDOWN } from './constants.js';
 import { getCharacter } from './characters.js';
 import { WORLDS, stageLabel, backdropOf } from './stages.js';
 import { drawScenery, drawAmbient } from './scenery.js';
-import SHEETS from './sheets.json' with { type: 'json' };
+import { SHEETS, sheetOf } from './sheets.js';
 import { asset, currentConfig } from '../art-style.svelte.js';
 import { loadImage } from '../preload.svelte.js';
 import { t, displayName } from '../i18n.svelte.js';
@@ -223,6 +223,11 @@ function drawFrame(g, sheet, name, x, y, h, facing, { fallback = 'idle', flash =
   if (i < 0) i = Math.max(0, sheet.frames.indexOf(fallback));
   const c = sheet.cell;
   h *= (sheet.fix?.[sheet.frames[i]] ?? 1) * (sheet.scale ?? 1);
+  // 像素圖集：讓一個邏輯像素剛好對到整數個畫布像素（不然最近鄰縮放會吃掉輪廓線）；太小的（遠景的別人）就照原本大小
+  if (sheet.pixel) {
+    const k = (h * SCALE) / c;
+    if (k >= 0.75) h = (Math.round(k) * c) / SCALE;
+  }
   g.save();
   g.translate(x, y);
   if (facing < 0) g.scale(-1, 1);
@@ -290,7 +295,7 @@ function runnerPose(act, t, speed = 7, frames = []) {
 }
 
 function drawRunnerSprite(g, character, act, actT, x, y, { h = CELL_H, alpha = 1, speed = 7, flash = 0 } = {}) {
-  const sheet = SHEETS.characters?.[character];
+  const sheet = sheetOf('characters', character);
   const pose = runnerPose(act, actT, speed, sheet?.frames);
   if (sheet && drawFrame(g, sheet, pose.name, x, y + (pose.dy ?? 0) * (h / CELL_H), h, 1, { fallback: 'run1', rotate: pose.rotate ?? 0, alpha, flash })) return pose;
   // 沒圖：畫一個圓圓的人
@@ -822,7 +827,7 @@ function drawEnemies(g, v, world) {
       y -= k * 10 - k * k * 0.6;
       rot = k * 0.3;
     }
-    const sheet = SHEETS.enemies?.[`${id}/${e.kind}`];
+    const sheet = sheetOf('enemies', `${id}/${e.kind}`);
     const h = CELL_H * (e.kind === 'brute' ? 1.25 : 1);
     g.save();
     if (rot) {
@@ -870,7 +875,7 @@ function drawBoss(g, v, world) {
   g.fillStyle = `rgba(255,230,140,${glow})`;
   g.fillRect(x - 60, y + 76, 120, 6);
   g.restore();
-  const sheet = SHEETS.bosses?.[WORLDS[world].id];
+  const sheet = sheetOf('bosses', WORLDS[world].id);
   const pose = { enter: 'idle', hover: b.t % 78 > 30 && b.t % 78 < 42 ? 'windup' : 'idle', swoop: 'charge', hurt: 'hurt', down: 'fall' }[b.state];
   const flash = b.state === 'hurt' && Math.floor(b.t / 3) % 2 === 0 ? 1 : 0;
   if (!(sheet && drawFrame(g, sheet, pose, x, y + 70, BOSS_H, -1, { fallback: 'idle', flash }))) {
