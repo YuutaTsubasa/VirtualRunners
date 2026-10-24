@@ -260,8 +260,8 @@ function runnerPose(act, t, speed = 7, frames = []) {
       const run = RUN8.every(has) ? RUN8 : has('run3') && has('run4') ? RUN4 : ['run1', 'run2'];
       const per = Math.max(2, Math.round((cycle * 4) / run.length));
       const name = run[Math.floor(t / per) % run.length];
-      // 步伐的上下起伏：腳著地那格低一點、兩腳交錯那格高一點
-      return { name, dy: STEP_BOB[name] ?? 0 };
+      // 步伐的上下起伏：只有 4 格時程式補一點（腳著地低、兩腳交錯高）；8 格的圖本身就畫了起伏
+      return { name, dy: run === RUN8 ? 0 : (STEP_BOB[name] ?? 0) };
     }
     case 'jump':
     case 'spring':
