@@ -133,6 +133,7 @@ pub fn handle(room: &mut Room, host_key: &str, conn: &mut Conn, v: &Value) -> (V
                     None => Err("設定格式不對".into()),
                 },
                 "start" => room.start(),
+                "next" => room.next_stage(),
                 "reset" => {
                     room.reset_to_lobby();
                     Ok(())

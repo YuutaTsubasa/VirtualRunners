@@ -11,7 +11,7 @@
 use runner_core::ai::{Ai, Difficulty};
 use runner_core::course::Plan;
 use runner_core::protocol::{self, Conn};
-use runner_core::room::{Progress, Room};
+use runner_core::room::{progress_of, Room};
 use runner_core::run::{Input, Phase, Run};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -21,6 +21,7 @@ use wasm_bindgen::prelude::*;
 pub struct LocalRun {
     run: Run,
     ai: Option<Ai>,
+    revived: u32,
 }
 
 #[wasm_bindgen]
@@ -30,7 +31,7 @@ impl LocalRun {
     pub fn new(plan: &str, character: &str, seed: &str) -> LocalRun {
         let plan: Plan = serde_json::from_str::<Value>(plan).ok().and_then(|v| parse_plan(&v)).unwrap_or(Plan::Endless);
         let seed = seed.parse::<u64>().unwrap_or_else(|_| js_seed());
-        LocalRun { run: Run::new(plan, character, seed), ai: None }
+        LocalRun { run: Run::new(plan, character, seed), ai: None, revived: 0 }
     }
 
     /// 交給電腦跑（示範用）：difficulty = easy | normal | hard
@@ -64,21 +65,30 @@ impl LocalRun {
         self.run.done()
     }
 
+    /// 一起闖關：心沒了變成靈魂（等隊友救），不是直接倒下
+    #[wasm_bindgen(js_name = setCoop)]
+    pub fn set_coop(&mut self, on: bool) {
+        self.run.coop = on;
+    }
+
+    /// 被隊友救回來（房主說的救援次數比自己多時呼叫）
+    pub fn revive(&mut self) {
+        if self.run.phase == Phase::Soul {
+            self.run.revive();
+            self.revived += 1;
+        }
+    }
+
+    /// 自己被救回來幾次（跟房主的次數比對用）
+    #[wasm_bindgen(getter)]
+    pub fn revived(&self) -> u32 {
+        self.revived
+    }
+
     /// 連線時回報給房主的進度
     pub fn progress(&self) -> String {
-        let r = &self.run;
-        let p = Progress {
-            x: r.r.x.round(),
-            y: r.r.y.round(),
-            a: serde_json::to_value(r.r.act).ok().and_then(|v| v.as_str().map(String::from)).unwrap_or_default(),
-            hp: r.r.hp,
-            coins: r.coins,
-            score: r.score,
-            meters: r.meters(),
-            prog: r.progress(),
-            fin: (r.phase == Phase::Goal).then_some(r.t),
-            out: r.phase == Phase::Out,
-        };
+        let mut p = progress_of(&self.run);
+        p.rev = self.revived;
         serde_json::to_string(&p).unwrap_or_default()
     }
 }

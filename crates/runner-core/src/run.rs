@@ -47,6 +47,8 @@ pub enum Act {
     Hurt,
     Goal,
     Out,
+    /// 一起闖關時心沒了：變成靈魂跟著飄，等隊友救
+    Soul,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -58,6 +60,8 @@ pub enum Phase {
     Goal,
     /// 體力用完
     Out,
+    /// 一起闖關時體力用完：變成靈魂繼續往前飄（碰不到東西、吃不到金幣），隊友救回來就回到 Run
+    Soul,
 }
 
 /// 這一格發生的事（音效、特效、台詞用）
@@ -85,6 +89,10 @@ pub enum Event {
     BossDown,
     Goal,
     Out,
+    /// 變成靈魂（一起闖關）
+    Soul,
+    /// 被隊友救回來
+    Revive,
     /// 無盡模式換場景
     Theme { world: usize },
 }
@@ -178,6 +186,8 @@ pub struct Run {
     pub boss: Option<Boss>,
     pub events: Vec<Event>,
     theme: usize,
+    /// 一起闖關：心沒了變成靈魂（等隊友救），不是直接倒下
+    pub coop: bool,
 }
 
 impl Run {
@@ -231,6 +241,7 @@ impl Run {
             boss,
             events: Vec::new(),
             theme,
+            coop: false,
         }
     }
 
@@ -306,6 +317,10 @@ impl Run {
                     self.set_act(Act::Run);
                     self.events.push(Event::Go);
                 }
+                return;
+            }
+            Phase::Soul => {
+                self.soul_step();
                 return;
             }
             Phase::Goal | Phase::Out => {
@@ -585,6 +600,37 @@ impl Run {
     }
 
     /// 掉坑之後：放回前面第一塊地面上
+    /// 靈魂：照跑速往前飄，高度慢慢回到跑道上方（不碰東西、不吃金幣）
+    fn soul_step(&mut self) {
+        self.t += 1;
+        self.r.act_t += 1;
+        self.r.x += self.speed();
+        let target = self.ground_under(self.r.x).unwrap_or(GROUND) - 90.0;
+        self.r.y += (target - self.r.y) * 0.08;
+        self.r.vy = 0.0;
+        self.course.ensure(self.r.x + 2200.0);
+        self.course.prune(self.r.x);
+        let theme = self.course.theme_at(self.r.x);
+        if theme != self.theme {
+            self.theme = theme;
+            self.events.push(Event::Theme { world: theme });
+        }
+    }
+
+    /// 被隊友救回來：放回前面的地面上，一顆心＋一段無敵
+    pub fn revive(&mut self) {
+        if self.phase != Phase::Soul {
+            return;
+        }
+        self.events.clear();
+        self.phase = Phase::Run;
+        self.r.hp = 1;
+        self.r.hurt_t = 0;
+        self.respawn();
+        self.r.inv = 150;
+        self.events.push(Event::Revive);
+    }
+
     fn respawn(&mut self) {
         let x = self.r.x;
         let s = self
@@ -626,9 +672,16 @@ impl Run {
         self.combo = 0;
         self.events.push(Event::Hurt);
         if self.r.hp <= 0 {
-            self.phase = Phase::Out;
-            self.set_act(Act::Out);
-            self.events.push(Event::Out);
+            if self.coop {
+                self.phase = Phase::Soul;
+                self.set_act(Act::Soul);
+                self.r.homing = None;
+                self.events.push(Event::Soul);
+            } else {
+                self.phase = Phase::Out;
+                self.set_act(Act::Out);
+                self.events.push(Event::Out);
+            }
             return;
         }
         if !pit {

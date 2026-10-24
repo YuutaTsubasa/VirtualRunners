@@ -3,8 +3,8 @@
 // 狀態格式見 crates/runner-core/src/run.rs 的 Run::view()。座標直接是畫面座標（960×540），x 減掉鏡頭 cam。
 // 角色、敵人、魔王的動作圖與背景沿用虛擬闖天下；尖刺、橫桿、冰柱、火柱、彈簧、金幣、終點還沒有圖，先用程式畫。
 //
-// 連線時別人的進度（房主每秒送 15 次）畫在「遠景」那一層地板上：縮小、半透明、在背後跑，
-// 看得出誰領先，但不會擋到自己的路。
+// 連線時別人的進度（房主每秒送 15 次）半透明地疊在自己這條路上，自己畫在最上面；
+// 跑出畫面的在邊緣顯示箭頭與距離。
 
 import { W, H, GROUND, SCREEN_X, SLOT_COLORS, COUNTDOWN } from './constants.js';
 import { getCharacter } from './characters.js';
@@ -88,6 +88,7 @@ export function resetEffects() {
   flashScreen = 0;
   fade = null;
   lastWorld = -1;
+  ghostState.clear();
 }
 
 const ITEM_NAMES = { meat: '烤肉 +♥', gem: '寶石 +1000', magnet: '磁鐵！', shield: '護盾！' };
@@ -940,52 +941,125 @@ function groundBelow(v, x, y) {
   return best;
 }
 
-// ---------- 遠景裡的其他玩家 ----------
+// ---------- 一起跑的其他玩家（疊在同一條路上） ----------
 
-const GHOST_SCALE = 0.5;
-const GHOST_FLOOR = 392; // 後面那一層地板上，大概在畫面的這個高度跑
+// 房主每秒只送 15 次大家的位置：中間用上一次的速度往前推、再慢慢靠過去，看起來才不會一跳一跳
+const ghostState = new Map(); // seat → { x, y, vx, vy, at, shownX, shownY, raceT }
+const clock = () => performance.now() / (1000 / 60);
 
-/** 別人：畫在後面那一層地板上（縮小、半透明）；跑太前面或太後面就在畫面邊緣顯示箭頭 */
-function drawGhosts(g, race, you, centerX) {
+function ghostPos(o, raceT) {
+  const p = o.p;
+  let st = ghostState.get(o.seat);
+  const now = clock();
+  if (!st) {
+    st = { x: p.x, y: p.y, vx: 0, vy: 0, at: now, shownX: p.x, shownY: p.y, raceT };
+    ghostState.set(o.seat, st);
+  } else if (st.raceT !== raceT) {
+    const dt = Math.max(1, raceT - st.raceT);
+    // 速度只在合理範圍內才用（重生、救回來會瞬移）
+    const vx = (p.x - st.x) / dt;
+    st.vx = vx > -2 && vx < 40 ? vx : 0;
+    st.vy = (p.y - st.y) / dt;
+    st.x = p.x;
+    st.y = p.y;
+    st.at = now;
+    st.raceT = raceT;
+    if (Math.abs(st.shownX - p.x) > 400) {
+      st.shownX = p.x;
+      st.shownY = p.y;
+    }
+  }
+  const ahead = Math.min(8, now - st.at);
+  const done = p.fin != null || p.out;
+  const tx = st.x + (done ? 0 : st.vx * ahead);
+  const ty = st.y + (done ? 0 : st.vy * ahead * 0.5);
+  st.shownX += (tx - st.shownX) * 0.45;
+  st.shownY += (ty - st.shownY) * 0.45;
+  return [st.shownX, st.shownY];
+}
+
+/**
+ * 別人：半透明地疊在自己這條路上（同樣的位置、同樣的大小），自己畫在最上面。
+ * 跑出畫面就在邊緣顯示箭頭與距離。centerX = 自己的 x（觀戰時是領先者）
+ */
+function drawGhosts(g, race, you, cam) {
   if (!race) return;
   const others = race.runners.filter((r) => r.seat !== you);
-  // 後面的人先畫
   others.sort((a, b) => a.p.x - b.p.x);
   for (const o of others) {
     const p = o.p;
+    const [wx, wy] = ghostPos(o, race.t);
     const color = SLOT_COLORS[o.seat % SLOT_COLORS.length];
-    const sx = SCREEN_X + (p.x - centerX) * GHOST_SCALE;
-    const sy = GHOST_FLOOR + (p.y - GROUND) * GHOST_SCALE;
+    const sx = wx - cam;
     const label = `${o.seat + 1}P ${displayName(o.name)}`;
-    if (sx < 16 || sx > W - 16) {
-      // 畫面外：邊緣的箭頭與距離
-      const right = sx > W - 16;
-      const ex = right ? W - 22 : 22;
-      const meters = Math.round(Math.abs(p.x - centerX) / 30);
+    if (sx < -30 || sx > W + 30) {
+      // 畫面外：邊緣的箭頭與距離（跟自己差幾公尺）
+      const right = sx > W;
+      const ex = right ? W - 20 : 20;
+      const ey = Math.min(GROUND - 40, Math.max(150, wy - 50));
+      const meters = Math.round(Math.abs(wx - (cam + SCREEN_X)) / 30);
       g.fillStyle = color;
       g.beginPath();
-      g.moveTo(ex + (right ? 14 : -14), GHOST_FLOOR - 40);
-      g.lineTo(ex, GHOST_FLOOR - 52);
-      g.lineTo(ex, GHOST_FLOOR - 28);
+      g.moveTo(ex + (right ? 12 : -12), ey);
+      g.lineTo(ex, ey - 11);
+      g.lineTo(ex, ey + 11);
       g.fill();
-      outlinedText(g, `${o.seat + 1}P ${right ? '+' : '−'}${meters}m`, right ? ex - 6 : ex + 6, GHOST_FLOOR - 62, 13, '#fff', right ? 'right' : 'left');
+      outlinedText(g, `${o.seat + 1}P ${right ? '+' : '−'}${meters}m`, right ? ex - 6 : ex + 6, ey - 20, 12, '#fff', right ? 'right' : 'left');
       continue;
     }
-    const done = p.fin != null;
+    const soul = p.soul;
+    const act = p.out ? 'out' : p.fin != null ? 'goal' : soul ? 'soul' : p.a || 'run';
     g.save();
-    g.globalAlpha = p.out ? 0.35 : 0.85;
-    drawRunnerSprite(g, o.character, p.out ? 'out' : done ? 'goal' : p.a || 'run', frame + o.seat * 7, sx, sy, { h: CELL_H * GHOST_SCALE * 1.4 });
+    g.globalAlpha = soul ? 0.35 : p.out ? 0.25 : 0.45;
+    if (soul) g.filter = 'grayscale(1) brightness(1.6)';
+    drawRunnerSprite(g, o.character, act === 'soul' ? 'jump' : act, frame + o.seat * 5, sx, wy + (soul ? Math.sin(frame * 0.08 + o.seat) * 6 : 0), { speed: 7 });
     g.restore();
-    g.font = `900 12px ${FONT}`;
+    // 名牌
+    g.font = `900 11px ${FONT}`;
     const w = g.measureText(label).width + 10;
+    const ty = wy - 104;
+    g.globalAlpha = 0.85;
     g.fillStyle = color;
-    rr(g, sx - w / 2, sy - 108, w, 17, 5);
+    rr(g, sx - w / 2, ty - 8, w, 16, 8);
     g.fill();
+    g.globalAlpha = 1;
     g.fillStyle = '#fff';
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillText(label, sx, sy - 99);
+    g.fillText(label, sx, ty);
+    if (soul && o.rescue != null) outlinedText(g, `${o.rescue}/${race.revive_coins}`, sx, ty - 16, 12, '#9fe8ff');
   }
+}
+
+/** 自己變成靈魂：半透明、發光，頭上是隊友的救援進度 */
+function drawSoul(g, v, race, you) {
+  const r = v.runner;
+  const x = r.x - v.cam;
+  const y = r.y + Math.sin(frame * 0.08) * 6;
+  g.save();
+  g.globalAlpha = 0.5;
+  g.filter = 'grayscale(1) brightness(1.7)';
+  drawRunnerSprite(g, v.character, 'jump', r.act_t, x, y, { speed: v.speed });
+  g.restore();
+  const glow = g.createRadialGradient(x, y - 50, 10, x, y - 50, 70);
+  glow.addColorStop(0, 'rgba(180,240,255,0.35)');
+  glow.addColorStop(1, 'rgba(180,240,255,0)');
+  g.fillStyle = glow;
+  g.beginPath();
+  g.arc(x, y - 50, 70, 0, Math.PI * 2);
+  g.fill();
+  const mine = race?.runners.find((o) => o.seat === you);
+  const n = mine?.rescue ?? 0;
+  const need = race?.revive_coins ?? 20;
+  outlinedText(g, t('等隊友救援'), x, y - 140, 16, '#9fe8ff');
+  // 救援進度條
+  g.fillStyle = 'rgba(255,255,255,0.85)';
+  rr(g, x - 50, y - 126, 100, 10, 5);
+  g.fill();
+  g.fillStyle = '#23b5e8';
+  rr(g, x - 50, y - 126, (100 * n) / need, 10, 5);
+  g.fill();
+  outlinedText(g, `${n}/${need}`, x + 64, y - 121, 12, '#fff', 'left');
 }
 
 // ---------- HUD（art-work/runner-ui-concept-v1/04-gameplay-hud：雲白膠囊＋深墨細框） ----------
@@ -1190,13 +1264,8 @@ function drawBossBar(g, b, w, cx, cw) {
 
 /** 右邊窄窄的名次條（連線）：名次＋名字＋進度，自己那一列是橘色底 */
 function drawRaceBoard(g, race, you, top) {
-  const rows = [...race.runners].sort((a, b) => {
-    const fa = a.p.fin ?? Infinity;
-    const fb = b.p.fin ?? Infinity;
-    if (fa !== fb) return fa - fb;
-    if (a.p.out !== b.p.out) return a.p.out ? 1 : -1;
-    return b.p.x - a.p.x;
-  });
+  // 比分數：分數高的在上面
+  const rows = [...race.runners].sort((a, b) => b.p.score - a.p.score || b.p.x - a.p.x);
   const h = 22;
   const x = W - 12 - 196;
   g.fillStyle = 'rgba(255,255,255,0.92)';
@@ -1216,9 +1285,10 @@ function drawRaceBoard(g, race, you, top) {
     g.beginPath();
     g.arc(x + 16, y, 6, 0, Math.PI * 2);
     g.fill();
-    const color = o.p.out ? '#9bb5c2' : HUD.ink;
+    const color = o.p.out || o.p.soul ? '#9bb5c2' : HUD.ink;
     hudText(g, `${i + 1}. ${displayName(o.name)}`.slice(0, 13), x + 28, y, 13, color);
-    const right = o.p.fin != null ? `${(o.p.fin / 60).toFixed(1)}s` : o.p.out ? t('倒下') : race.plan.kind === 'endless' ? `${o.p.meters}m` : `${Math.round((o.p.prog ?? 0) * 100)}%`;
+    const state = o.p.out ? t('倒下') + ' ' : o.p.soul ? t('等救援') + ' ' : o.p.fin != null ? '★ ' : '';
+    const right = `${state}${o.p.score}`;
     hudText(g, right, x + 186, y, 13, color, 'right');
   });
 }
@@ -1314,7 +1384,7 @@ function drawSpectate(g, race) {
   drawBackdrop(g, w, plan.kind === 'level' ? backdropOf(plan.stage) : 0, leader);
   g.fillStyle = 'rgba(0,0,0,0.25)';
   g.fillRect(0, 0, W, H);
-  drawGhosts(g, race, null, leader - 300);
+  drawGhosts(g, race, null, leader - SCREEN_X - 200);
   outlinedText(g, t('觀戰中'), W / 2, 40, 26, '#ffd84a');
   if (race) drawRaceBoard(g, race, null, 80);
 }
@@ -1337,7 +1407,6 @@ export function draw(canvas, v, { race = null, you = null, spectate = false, key
   g.save();
   g.translate(sx, sy);
   drawBackdrop(g, world, sub, v.cam);
-  drawGhosts(g, race, you, v.runner.x);
   drawSolids(g, v, world, sub);
   drawGoal(g, v);
   drawSprings(g, v);
@@ -1347,7 +1416,9 @@ export function draw(canvas, v, { race = null, you = null, spectate = false, key
   drawEnemies(g, v, world);
   drawBoss(g, v, world);
   drawShots(g, v, world);
-  drawRunner(g, v);
+  drawGhosts(g, race, you, v.cam);
+  if (v.runner.act === 'soul') drawSoul(g, v, race, you);
+  else drawRunner(g, v);
   drawEffects(g, v.cam);
   g.restore();
   if (flashScreen > 0) {

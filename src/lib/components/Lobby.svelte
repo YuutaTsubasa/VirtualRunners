@@ -5,7 +5,8 @@
   import { WEB_URL, shareLink } from '../site.js';
   import { CHARACTERS, getCharacter } from '../game/characters.js';
   import { DIFFICULTIES, SLOT_COLORS } from '../game/constants.js';
-  import { WORLDS } from '../game/stages.js';
+  import { WORLDS, stageLabel } from '../game/stages.js';
+  import StageMap from './StageMap.svelte';
   import { play } from '../game/audio.js';
   import { t, displayName, serverText } from '../i18n.svelte.js';
   import ScreenFrame from './ScreenFrame.svelte';
@@ -14,12 +15,12 @@
   import Stepper from './Stepper.svelte';
 
   const room = $derived(net.room);
-  const worldOptions = WORLDS.map((w, i) => ({ value: i, label: t(w.name) }));
-  const stageOptions = $derived(WORLDS[room?.settings.world ?? 0].subs.map((name, i) => ({ value: i, label: `${i + 1}. ${t(name)}` })));
   const modeOptions = [
-    { value: false, label: t('關卡競速') },
-    { value: true, label: t('無盡生存') },
+    { value: false, label: t('一起闖關') },
+    { value: true, label: t('無盡比分') },
   ];
+  // 房主從關卡地圖選關（照房主自己的關卡進度上鎖）
+  let pickingStage = $state(false);
   const difficultyOptions = Object.entries(DIFFICULTIES).map(([k, label]) => ({ value: k, label: t(label) }));
   const isHost = $derived(net.isHost);
   const urls = $derived(serverUrls());
@@ -169,10 +170,11 @@
         <span>{t('模式')}</span>
         <Stepper options={modeOptions} value={room.settings.endless} disabled={!isHost} onchange={(v) => updateSettings({ endless: v === true || v === 'true' })} />
         {#if !room.settings.endless}
-          <span>{t('大關')}</span>
-          <Stepper options={worldOptions} value={room.settings.world} disabled={!isHost} onchange={(v) => updateSettings({ world: Number(v), stage: 0 })} />
-          <span>{t('小關')}</span>
-          <Stepper options={stageOptions} value={room.settings.stage} disabled={!isHost} onchange={(v) => updateSettings({ stage: Number(v) })} />
+          <span>{t('關卡')}</span>
+          <div class="stage-pick">
+            <b>{stageLabel(room.settings.world, room.settings.stage)} {t(WORLDS[room.settings.world].subs[room.settings.stage])}</b>
+            {#if isHost}<button type="button" class="vbtn small" onclick={() => (pickingStage = true)}>{t('選關卡')}</button>{/if}
+          </div>
         {/if}
         <span>{t('電腦強度')}</span>
         <Stepper options={difficultyOptions} value={room.settings.difficulty} disabled={!isHost} onchange={(v) => updateSettings({ difficulty: v })} />
@@ -201,7 +203,7 @@
 
   {#snippet foot()}
     <BackButton label={t('離開房間')} onclick={leave} />
-    <div class="hint-bar"><i class="bang">!</i>{isHost ? t('別人會在背景的遠景裡跟你一起跑') : t('等待房主開跑…')}</div>
+    <div class="hint-bar"><i class="bang">!</i>{isHost ? (room.settings.endless ? t('同一條路比分數，倒下就出局') : t('一起闖關：倒下的隊友吃金幣就能救回來')) : t('等待房主開跑…')}</div>
     {#if isHost}
       <button type="button" class="vbtn primary" onclick={() => hostCmd('start')}>{t('開跑！')}</button>
     {:else}
@@ -209,6 +211,20 @@
     {/if}
   {/snippet}
 </ScreenFrame>
+
+{#if pickingStage}
+  <div class="stage-overlay">
+    <StageMap
+      character={myCharacter ?? 'xiaocui'}
+      at={{ world: room.settings.world, stage: room.settings.stage }}
+      onpick={(w, s) => {
+        updateSettings({ world: w, stage: s });
+        pickingStage = false;
+      }}
+      onback={() => (pickingStage = false)}
+    />
+  </div>
+{/if}
 
 <dialog class="char-dialog" bind:this={charDialog}>
   <div class="panel">
@@ -229,6 +245,24 @@
 </dialog>
 
 <style>
+  .stage-pick {
+    display: flex;
+    align-items: center;
+    gap: 1cqw;
+    min-width: 0;
+  }
+  .stage-pick b {
+    flex: 1;
+    font-size: 2.3cqh;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stage-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+  }
   .seats {
     flex: 1.7;
     display: grid;

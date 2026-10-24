@@ -9,7 +9,7 @@
   import { WORLDS, stageLabel } from './lib/game/stages.js';
   import { STAGE_COUNT, WORLD_COUNT, COUNTDOWN, SLOT_COLORS } from './lib/game/constants.js';
   import { toggleMute } from './lib/game/audio.js';
-  import { net, hostCmd, leave, onFrame } from './lib/net.svelte.js';
+  import { net, hostCmd, leave, onFrame, toast } from './lib/net.svelte.js';
   import Menu from './lib/components/Menu.svelte';
   import Logo from './lib/components/Logo.svelte';
   import Dialog from './lib/components/Dialog.svelte';
@@ -69,6 +69,7 @@
   // 連線：房主送來的比賽狀態（只記會改變畫面的部分，影格本身交給 engine）
   let racePhase = $state(null); // countdown | racing | results
   let raceResults = $state(null);
+  let raceTeam = $state(null); // 一起闖關的隊伍成績：{ cleared, stars, coins, coin_total, no_hits, score }
   let racePlan = $state(null);
   let raceSeed = null;
 
@@ -132,6 +133,7 @@
     if (s.seed !== raceSeed) {
       raceSeed = s.seed;
       raceResults = null;
+      raceTeam = null;
       racePlan = s.plan;
       bossFight = false;
       musicWorld = s.plan.kind === 'level' ? s.plan.world : 0;
@@ -145,8 +147,16 @@
       racePhase = s.phase;
       if (s.phase === 'results') {
         raceResults = s.results;
+        raceTeam = s.team;
         const first = s.results?.[0];
-        playJingle(first?.seat === net.seat ? 'win' : 'lose');
+        if (s.team) {
+          // 一起闖關：全隊過關的話，星星記在自己的關卡進度（跟朋友一起推進度）
+          if (s.team.cleared && s.plan.kind === 'level') {
+            recordStars(s.plan.world, s.plan.stage, s.team.stars);
+            if (s.plan.world === 0 && s.plan.stage === STAGE_COUNT - 1 && unlockHidden()) toast(t('隱藏角色「阿翼」加入了！'), 'ok');
+          }
+          playJingle(s.team.cleared ? 'win' : 'lose');
+        } else playJingle(first?.seat === net.seat ? 'win' : 'lose');
       }
     }
   }
@@ -282,7 +292,6 @@
     if (racePlan.kind === 'endless') return t('無盡模式');
     return `${stageLabel(racePlan.world, racePlan.stage)} ${t(WORLDS[racePlan.world].subs[racePlan.stage])}`;
   });
-  const fmtTime = (f) => `${Math.floor(f / 3600)}:${String(Math.floor((f / 60) % 60)).padStart(2, '0')}.${String(Math.floor(((f % 60) / 60) * 100)).padStart(2, '0')}`;
 </script>
 
 <svelte:window {onkeydown} />
@@ -296,7 +305,19 @@
     <Lobby />
   {:else if view === 'online-playing'}
     {#if raceResults}
-      <Dialog title={t('比賽結果')} subtitle={raceTitle} wide>
+      <Dialog title={raceTeam ? (raceTeam.cleared ? t('全隊過關！') : t('全隊倒下……')) : t('比賽結果')} subtitle={raceTitle} wide>
+        {#if raceTeam}
+          <!-- 一起闖關：隊伍成績 -->
+          <div class="team">
+            <div class="team-stars">{#each [0, 1, 2] as i (i)}<span class:on={i < raceTeam.stars}>★</span>{/each}</div>
+            <div class="team-info">
+              <span class="chip" class:ok={raceTeam.cleared}>{t('有人過關')}</span>
+              <span class="chip" class:ok={raceTeam.coins * 10 >= raceTeam.coin_total * 7}>{t('金幣合計 {n} / {total}', { n: raceTeam.coins, total: raceTeam.coin_total })}</span>
+              <span class="chip" class:ok={raceTeam.no_hits}>{t('全隊沒受傷')}</span>
+            </div>
+            <b class="team-score">{t('隊伍總分')} {String(raceTeam.score).padStart(7, '0')}</b>
+          </div>
+        {/if}
         <ol class="ranking">
           {#each raceResults as r (r.seat)}
             {@const c = getCharacter(r.character)}
@@ -305,7 +326,8 @@
               <img src={r.rank === 1 ? c.portraits.win : r.out ? c.portraits.sad : c.portraits.normal} alt="" />
               <b>{r.seat + 1}P {displayName(r.name)}</b>
               <span class="time">
-                {#if r.fin != null && racePlan?.kind !== 'endless'}{fmtTime(r.fin)}{:else if r.out}{t('倒下')}・{r.meters}m{:else}{r.meters}m{/if}
+                {#if r.fin != null && racePlan?.kind !== 'endless'}{t('過關')}{:else if r.out}{t('倒下')}・{r.meters}m{:else}{r.meters}m{/if}
+                ・{t('金幣')} {r.coins}
               </span>
               <span class="score">{String(r.score).padStart(7, '0')}</span>
             </li>
@@ -315,7 +337,8 @@
           <Menu
             horizontal
             items={[
-              { label: t('再跑一次'), action: () => hostCmd('start'), primary: true },
+              ...(raceTeam?.cleared ? [{ label: t('下一關'), action: () => hostCmd('next'), primary: true }] : []),
+              { label: t('再跑一次'), action: () => hostCmd('start'), primary: !raceTeam?.cleared },
               { label: t('回大廳'), action: () => hostCmd('reset') },
             ]}
           />
@@ -483,6 +506,49 @@
     width: 50cqw;
     display: flex;
     justify-content: center;
+  }
+  .team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1cqh;
+    margin-bottom: 1.6cqh;
+  }
+  .team-stars {
+    display: flex;
+    gap: 1cqw;
+    font-size: 7cqh;
+    line-height: 1;
+  }
+  .team-stars span {
+    color: #dfe8ec;
+    -webkit-text-stroke: 0.3cqh #9bb5c2;
+  }
+  .team-stars span.on {
+    color: var(--gold);
+    -webkit-text-stroke: 0.35cqh var(--navy);
+  }
+  .team-info {
+    display: flex;
+    gap: 0.8cqw;
+  }
+  .team .chip {
+    padding: 0.3cqh 1.6cqh;
+    border: 0.25cqh solid #9bb5c2;
+    border-radius: 999px;
+    color: #7f98a5;
+    font-weight: 900;
+    font-size: 2cqh;
+  }
+  .team .chip.ok {
+    border-color: var(--ok);
+    color: var(--navy);
+    background: color-mix(in srgb, var(--ok) 15%, transparent);
+  }
+  .team-score {
+    font-size: 3cqh;
+    color: var(--teal);
+    letter-spacing: 0.06em;
   }
   .ranking {
     list-style: none;

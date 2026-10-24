@@ -41,6 +41,8 @@ const EVENT_SOUND = {
   bosshit: 'heavy',
   bossdown: 'bossdown',
   goal: 'goal',
+  soul: 'fall',
+  revive: 'shield',
 };
 
 const wasmReady = init();
@@ -82,6 +84,12 @@ export function createEngine(canvas, { onEnd = () => {}, onEvent = () => {} }) {
   const offFrame = onFrame((s) => {
     if (state !== 'online' && state !== 'spectate') return;
     race = s;
+    // 一起闖關：隊友把自己救回來了（房主的救援次數比自己的多）
+    const mine = s.runners?.find((r) => r.seat === you);
+    if (state === 'online' && run && mine && mine.revives > run.revived) {
+      run.revive();
+      play('shield');
+    }
     // 倒數中：跟房主的時間對齊（分頁卡了一下、或比較晚收到開始的訊息，都不會比別人晚起跑）
     if (state === 'online' && run && view?.phase === 'ready') {
       const left = COUNTDOWN - s.t;
@@ -153,6 +161,8 @@ export function createEngine(canvas, { onEnd = () => {}, onEvent = () => {} }) {
       you = seat;
       const r = new LocalRun(JSON.stringify(plan), character, String(seed));
       r.setReady(Math.max(1, COUNTDOWN - t));
+      // 一起闖關（關卡）：心沒了變靈魂等隊友救；無盡比分沒有
+      r.setCoop(plan.kind === 'level');
       begin(r, 'online');
     },
     /** 連線觀戰（沒有座位、或比賽開始後才進來）：只看大家的進度 */
