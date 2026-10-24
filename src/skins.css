@@ -1,0 +1,499 @@
+/* ---------- 畫風外觀（skin） ----------
+   app.css 是 90 年代的介面（切角按鈕、斜線裝飾、米白面板）。其他五種風格除了換顏色，
+   這裡還換掉形狀與質感：按鈕、面板、標題條、標題橫幅、提示列、輸入框、角色卡。
+   每種風格只要定義下面這組 --sk-* 變數，共用規則會套上去；特別的部分再各自補。
+   氣氛描述來自各風格的交件留言（art-inbox/messages）。 */
+
+/* ===== 共用：非 90 年代的風格不要切角與斜線 ===== */
+:root:is([data-style='pc98'], [data-style='msdos'], [data-style='gameboy'], [data-style='taiwan-print'], [data-style='modern-paint']) {
+  /* 按鈕 */
+  & .vbtn {
+    --face: var(--sk-face);
+    clip-path: none;
+    background: transparent;
+    border: var(--sk-btn-border);
+    border-radius: var(--sk-btn-radius);
+    box-shadow: var(--sk-btn-shadow);
+    color: var(--sk-btn-text);
+    font-family: var(--font);
+  }
+  & .vbtn::before {
+    inset: 0;
+    clip-path: none;
+    border-radius: inherit;
+    background: var(--face);
+  }
+  & .vbtn:is(.gold, .active, .primary, :hover:not(:disabled)) {
+    --face: var(--sk-face-on);
+    color: var(--sk-btn-text-on);
+  }
+  &[data-input='key'] .vbtn:focus-visible,
+  &[data-input='pad'] .vbtn:focus {
+    --face: var(--sk-face-on);
+    color: var(--sk-btn-text-on);
+  }
+  &[data-input='touch'] .vbtn:hover:not(:focus):not(.gold):not(.primary):not(.active) {
+    --face: var(--sk-face);
+    color: var(--sk-btn-text);
+  }
+  & .vbtn:active:not(:disabled) {
+    box-shadow: var(--sk-btn-shadow-pressed, none);
+  }
+  & .vbtn.arrow:is(:hover, :focus-visible, .active)::after,
+  &[data-input='pad'] .vbtn.arrow:focus::after {
+    border-left-color: var(--sk-btn-text-on);
+  }
+  & .vbtn.primary::after {
+    border-left-color: var(--sk-btn-text-on);
+  }
+  & .vbtn.back > .tri {
+    border-right-color: var(--sk-btn-text);
+  }
+
+  /* 面板與標題條 */
+  & .panel {
+    background: var(--sk-panel-bg);
+    border: var(--sk-panel-border);
+    border-radius: var(--sk-panel-radius);
+    box-shadow: var(--sk-panel-shadow);
+  }
+  & .panel.gold-frame,
+  & .style-card.selected {
+    border-color: var(--sk-highlight);
+    box-shadow: var(--sk-panel-shadow), 0 0 0 0.4cqh var(--sk-highlight);
+  }
+  & :is(.panel-head, .dialog-title) {
+    clip-path: none;
+    background: var(--sk-head-bg);
+    color: var(--sk-head-text);
+    border-radius: var(--sk-head-radius);
+    border-bottom: var(--sk-head-border, none);
+    text-shadow: var(--sk-head-shadow, none);
+  }
+  & :is(.panel-head, .dialog-title)::before,
+  & :is(.panel-head, .dialog-title)::after {
+    content: none;
+  }
+  & .dialog-title h2 {
+    color: var(--sk-head-text);
+  }
+  & .dialog-title p {
+    color: var(--sk-highlight);
+  }
+
+  /* 標題橫幅（每個選單畫面右上角） */
+  & .banner {
+    clip-path: none;
+    filter: none;
+    background: transparent;
+    border: var(--sk-banner-border);
+    border-radius: var(--sk-banner-radius);
+    box-shadow: var(--sk-banner-shadow);
+  }
+  & .banner::before {
+    inset: 0;
+    clip-path: none;
+    border-radius: inherit;
+    background: var(--sk-banner-bg);
+  }
+  & .banner h2 {
+    color: var(--sk-banner-title);
+    text-shadow: var(--sk-banner-title-shadow);
+    font-family: var(--font);
+  }
+  & .banner p {
+    background: var(--sk-banner-sub-bg);
+    color: var(--sk-banner-sub-text);
+    border-color: var(--sk-banner-sub-line);
+  }
+  & .frame-head::after {
+    background: var(--sk-rule);
+    border-color: var(--sk-rule-line);
+  }
+
+  /* 提示列 */
+  & .hint-bar {
+    clip-path: none;
+    background: var(--sk-hint-bg);
+    color: var(--sk-hint-text);
+    border: var(--sk-hint-border);
+    border-radius: var(--sk-hint-radius);
+  }
+  & .hint-bar::before,
+  & .hint-bar::after {
+    content: none;
+  }
+
+  /* 輸入框 */
+  & :is(input, select.vsel) {
+    background: var(--sk-input-bg);
+    color: var(--sk-input-text);
+    border: var(--sk-input-border);
+    border-radius: var(--sk-input-radius);
+    font-family: var(--font);
+  }
+  & input::placeholder {
+    color: var(--sk-placeholder, #9aa3ba);
+  }
+
+  /* 角色卡 */
+  & .card {
+    border: var(--sk-card-border);
+    border-radius: var(--sk-card-radius);
+    background: var(--sk-card-bg);
+  }
+  & .card span {
+    background: var(--sk-card-label-bg);
+    color: var(--sk-card-label-text);
+  }
+  & .card.selected,
+  & .card.looking:not(.selected) {
+    border-color: var(--sk-highlight);
+  }
+  & .card.selected {
+    box-shadow: 0 0 0 0.45cqh var(--sk-highlight);
+  }
+  & .card.selected::after {
+    background: var(--sk-highlight);
+    color: var(--sk-highlight-text);
+  }
+  & .stat .bar i {
+    transform: none;
+    border-color: var(--sk-panel-line);
+    background: var(--sk-stat-off);
+  }
+  & .stat .bar i.on {
+    background: var(--sk-stat-on);
+  }
+}
+
+/* ===== MS-DOS：灰色立體斜邊的對話框、深藍標題列、亮黃選取 ===== */
+:root[data-style='msdos'] {
+  --sk-bevel: #f4f6fa #4a5568 #4a5568 #f4f6fa;
+  --sk-face: #c8ccd4;
+  --sk-face-on: #ffd23f;
+  --sk-btn-text: #101828;
+  --sk-btn-text-on: #101828;
+  --sk-btn-border: 0.5cqh solid;
+  --sk-btn-radius: 0;
+  --sk-btn-shadow: 0.7cqh 0.7cqh 0 #000;
+  --sk-btn-shadow-pressed: 0.2cqh 0.2cqh 0 #000;
+  --sk-panel-bg: #c8ccd4;
+  --sk-panel-border: 0.5cqh solid;
+  --sk-panel-radius: 0;
+  --sk-panel-shadow: 1cqh 1cqh 0 rgba(0, 0, 0, 0.7);
+  --sk-panel-line: #4a5568;
+  --sk-head-bg: #243c7a;
+  --sk-head-text: #f6f1d8;
+  --sk-head-radius: 0;
+  --sk-banner-bg: #243c7a;
+  --sk-banner-border: 0.7cqh double #c8ccd4;
+  --sk-banner-radius: 0;
+  --sk-banner-shadow: 1cqh 1cqh 0 #000;
+  --sk-banner-title: #ffd23f;
+  --sk-banner-title-shadow: 0.4cqh 0.4cqh 0 #000;
+  --sk-banner-sub-bg: #101828;
+  --sk-banner-sub-text: #f6f1d8;
+  --sk-banner-sub-line: #9ca8b8;
+  --sk-rule: #9ca8b8;
+  --sk-rule-line: #4a5568;
+  --sk-hint-bg: #101828;
+  --sk-hint-text: #f6f1d8;
+  --sk-hint-border: 0.3cqh solid #9ca8b8;
+  --sk-hint-radius: 0;
+  --sk-input-bg: #101828;
+  --sk-input-text: #ffd23f;
+  --sk-placeholder: #9ca8b8;
+  --sk-input-border: 0.4cqh solid;
+  --sk-input-radius: 0;
+  --sk-card-border: 0.4cqh solid #4a5568;
+  --sk-card-radius: 0;
+  --sk-card-bg: #243c7a;
+  --sk-card-label-bg: #243c7a;
+  --sk-card-label-text: #f6f1d8;
+  --sk-highlight: #ffd23f;
+  --sk-highlight-text: #101828;
+  --sk-stat-off: #9ca8b8;
+  --sk-stat-on: #243c7a;
+  --navy-soft: #243c7a;
+
+  /* 立體斜邊：左上亮、右下暗 */
+  & :is(.vbtn, .panel) {
+    border-color: var(--sk-bevel);
+  }
+  & :is(input, select.vsel) {
+    border-color: #4a5568 #f4f6fa #f4f6fa #4a5568;
+  }
+  & :is(.panel-head, .dialog-title) {
+    margin: 0.5cqh 0.5cqh 0;
+    text-align: left;
+    padding-left: 2cqh;
+    letter-spacing: 0.1em;
+  }
+  & :is(.panel-head, .dialog-title)::before {
+    content: '■';
+    position: static;
+    margin-right: 1.4cqh;
+    background: none;
+    color: #9ca8b8;
+  }
+}
+
+/* ===== PC-98：深紫視窗、薰衣草雙線框、暖白文字、淡金選取 ===== */
+:root[data-style='pc98'] {
+  --sk-face: #24203e;
+  --sk-face-on: #ffd69a;
+  --sk-btn-text: #fae8cd;
+  --sk-btn-text-on: #24203e;
+  --sk-btn-border: 0.6cqh double #9b80b4;
+  --sk-btn-radius: 0.3cqh;
+  --sk-btn-shadow: 0.6cqh 0.6cqh 0 #090d1c;
+  --sk-panel-bg: #24203e;
+  --sk-panel-border: 0.7cqh double #9b80b4;
+  --sk-panel-radius: 0.3cqh;
+  --sk-panel-shadow: 0.8cqh 0.8cqh 0 #090d1c;
+  --sk-panel-line: #9b80b4;
+  --sk-head-bg: transparent;
+  --sk-head-text: #ffd69a;
+  --sk-head-radius: 0;
+  --sk-head-border: 0.35cqh double #9b80b4;
+  --sk-banner-bg: #24203e;
+  --sk-banner-border: 0.8cqh double #9b80b4;
+  --sk-banner-radius: 0.4cqh;
+  --sk-banner-shadow: 0.9cqh 0.9cqh 0 #090d1c;
+  --sk-banner-title: #fae8cd;
+  --sk-banner-title-shadow: 0.35cqh 0.35cqh 0 #6fd3c1;
+  --sk-banner-sub-bg: transparent;
+  --sk-banner-sub-text: #ffd69a;
+  --sk-banner-sub-line: #9b80b4;
+  --sk-rule: #9b80b4;
+  --sk-rule-line: #24203e;
+  --sk-hint-bg: #24203e;
+  --sk-hint-text: #fae8cd;
+  --sk-hint-border: 0.5cqh double #9b80b4;
+  --sk-hint-radius: 0.3cqh;
+  --sk-input-bg: #111329;
+  --sk-input-text: #fae8cd;
+  --sk-placeholder: #8a7fae;
+  --sk-input-border: 0.3cqh solid #9b80b4;
+  --sk-input-radius: 0;
+  --sk-card-border: 0.35cqh solid #9b80b4;
+  --sk-card-radius: 0.2cqh;
+  --sk-card-bg: #111329;
+  --sk-card-label-bg: #111329;
+  --sk-card-label-text: #fae8cd;
+  --sk-highlight: #ffd69a;
+  --sk-highlight-text: #24203e;
+  --sk-stat-off: #111329;
+  --sk-stat-on: #6fd3c1;
+
+  /* 深色視窗裡的字改成暖白（面板內的 --navy 是「文字色」） */
+  & :is(.panel, .dialog) {
+    --navy: #fae8cd;
+    --navy-soft: #c9b8e8;
+    --muted: #b8acd4;
+    --cream: #24203e;
+    --on-dark: #24203e;
+    --paper-white: #111329;
+    color: #fae8cd;
+  }
+  & :is(.panel-head, .dialog-title) {
+    margin: 0.8cqh 1.6cqh 0;
+    padding-bottom: 0.6cqh;
+  }
+  & :is(.plate, .role, .badge) {
+    color: #24203e;
+  }
+  & .plate {
+    background: #fae8cd;
+  }
+}
+
+/* ===== Game Boy：四色綠、粗方形像素框線、沒有漸層和陰影 ===== */
+:root[data-style='gameboy'] {
+  --sk-face: #8bac0f;
+  --sk-face-on: #0f380f;
+  --sk-btn-text: #0f380f;
+  --sk-btn-text-on: #9bbc0f;
+  --sk-btn-border: 0.6cqh solid #0f380f;
+  --sk-btn-radius: 0;
+  --sk-btn-shadow: inset 0 0 0 0.35cqh #306230;
+  --sk-panel-bg: #9bbc0f;
+  --sk-panel-border: 0.7cqh solid #0f380f;
+  --sk-panel-radius: 0;
+  --sk-panel-shadow: inset 0 0 0 0.45cqh #306230, 0.7cqh 0.7cqh 0 #306230;
+  --sk-panel-line: #0f380f;
+  --sk-head-bg: #306230;
+  --sk-head-text: #9bbc0f;
+  --sk-head-radius: 0;
+  --sk-banner-bg: #0f380f;
+  --sk-banner-border: 0.7cqh solid #306230;
+  --sk-banner-radius: 0;
+  --sk-banner-shadow: 0.7cqh 0.7cqh 0 #0f380f;
+  --sk-banner-title: #9bbc0f;
+  --sk-banner-title-shadow: 0.4cqh 0.4cqh 0 #306230;
+  --sk-banner-sub-bg: #306230;
+  --sk-banner-sub-text: #9bbc0f;
+  --sk-banner-sub-line: #8bac0f;
+  --sk-rule: #306230;
+  --sk-rule-line: #0f380f;
+  --sk-hint-bg: #8bac0f;
+  --sk-hint-text: #0f380f;
+  --sk-hint-border: 0.5cqh solid #0f380f;
+  --sk-hint-radius: 0;
+  --sk-input-bg: #9bbc0f;
+  --sk-input-text: #0f380f;
+  --sk-placeholder: #306230;
+  --sk-input-border: 0.5cqh solid #0f380f;
+  --sk-input-radius: 0;
+  --sk-card-border: 0.5cqh solid #0f380f;
+  --sk-card-radius: 0;
+  --sk-card-bg: #8bac0f;
+  --sk-card-label-bg: #0f380f;
+  --sk-card-label-text: #9bbc0f;
+  --sk-highlight: #306230;
+  --sk-highlight-text: #9bbc0f;
+  --sk-stat-off: #9bbc0f;
+  --sk-stat-on: #306230;
+
+  /* 只用四色：把其他地方的漸層、半透明陰影、彩色徽章都收掉 */
+  & :is(.who, .who.cpu, .who.p2, .badge, .role, .card .tag, .toast) {
+    background: #0f380f;
+    color: #9bbc0f;
+  }
+  & :is(.frame-pic, .portrait, .result-pic, .pic, .stage-art) {
+    background: #8bac0f;
+  }
+  & .screen.overlay {
+    background: rgba(15, 56, 15, 0.6);
+  }
+  & :is(.vs, .result-score) {
+    color: #9bbc0f;
+    -webkit-text-stroke-color: #0f380f;
+  }
+  & * {
+    text-shadow: none;
+  }
+}
+
+/* ===== 台式印刷：暖紙色、網點、粗墨框、紅／青套色偏移 ===== */
+:root[data-style='taiwan-print'] {
+  --halftone: radial-gradient(rgba(16, 32, 68, 0.13) 24%, transparent 27%) 0 0 / 0.9cqh 0.9cqh;
+  --halftone-red: radial-gradient(rgba(233, 75, 50, 0.22) 24%, transparent 27%) 0 0 / 0.9cqh 0.9cqh;
+  --sk-face: var(--halftone), #fff1c2;
+  --sk-face-on: var(--halftone-red), #f6c334;
+  --sk-btn-text: #102044;
+  --sk-btn-text-on: #102044;
+  --sk-btn-border: 0.5cqh solid #102044;
+  --sk-btn-radius: 0.3cqh;
+  --sk-btn-shadow: 0.7cqh 0.7cqh 0 #e94b32, -0.3cqh -0.3cqh 0 rgba(18, 140, 150, 0.6);
+  --sk-btn-shadow-pressed: 0.2cqh 0.2cqh 0 #e94b32;
+  --sk-panel-bg: var(--halftone), #fff1c2;
+  --sk-panel-border: 0.6cqh solid #102044;
+  --sk-panel-radius: 0.4cqh;
+  --sk-panel-shadow: 0.9cqh 0.9cqh 0 #e94b32, -0.35cqh -0.35cqh 0 rgba(18, 140, 150, 0.55);
+  --sk-panel-line: #102044;
+  --sk-head-bg: #128c96;
+  --sk-head-text: #fff1c2;
+  --sk-head-radius: 0.2cqh;
+  --sk-head-border: 0.4cqh solid #102044;
+  --sk-head-shadow: 0.3cqh 0.3cqh 0 #e94b32;
+  --sk-banner-bg: var(--halftone), #e94b32;
+  --sk-banner-border: 0.6cqh solid #102044;
+  --sk-banner-radius: 0.4cqh;
+  --sk-banner-shadow: 1cqh 1cqh 0 #128c96;
+  --sk-banner-title: #fff1c2;
+  --sk-banner-title-shadow: 0.45cqh 0.45cqh 0 #102044, -0.25cqh -0.25cqh 0 #f6c334;
+  --sk-banner-sub-bg: #102044;
+  --sk-banner-sub-text: #f6c334;
+  --sk-banner-sub-line: #fff1c2;
+  --sk-rule: repeating-linear-gradient(90deg, #e94b32 0 4cqh, #f6c334 4cqh 8cqh, #128c96 8cqh 12cqh);
+  --sk-rule-line: #102044;
+  --sk-hint-bg: var(--halftone), #fff1c2;
+  --sk-hint-text: #102044;
+  --sk-hint-border: 0.4cqh solid #102044;
+  --sk-hint-radius: 0.3cqh;
+  --sk-input-bg: #fffaf0;
+  --sk-input-text: #102044;
+  --sk-input-border: 0.4cqh solid #102044;
+  --sk-input-radius: 0.2cqh;
+  --sk-card-border: 0.45cqh solid #102044;
+  --sk-card-radius: 0.3cqh;
+  --sk-card-bg: var(--halftone), #f6c334;
+  --sk-card-label-bg: #102044;
+  --sk-card-label-text: #fff1c2;
+  --sk-highlight: #e94b32;
+  --sk-highlight-text: #fff1c2;
+  --sk-stat-off: #fff1c2;
+  --sk-stat-on: #e94b32;
+
+  & .banner h2 {
+    letter-spacing: 0.25em;
+  }
+}
+
+/* ===== 動漫電影：清透的藍色面板、細框、圓角、柔和光暈 ===== */
+:root[data-style='modern-paint'] {
+  --sk-face: linear-gradient(#ffffff, #fff3d6);
+  --sk-face-on: linear-gradient(#fff2c6, #f4c558);
+  --sk-btn-text: #173351;
+  --sk-btn-text-on: #173351;
+  --sk-btn-border: 0.25cqh solid rgba(21, 69, 143, 0.35);
+  --sk-btn-radius: 99cqh;
+  --sk-btn-shadow: 0 0.6cqh 1.6cqh rgba(21, 69, 143, 0.22), inset 0 0.2cqh 0 rgba(255, 255, 255, 0.9);
+  --sk-btn-shadow-pressed: 0 0.2cqh 0.6cqh rgba(21, 69, 143, 0.3);
+  --sk-panel-bg: rgba(255, 249, 236, 0.82);
+  --sk-panel-border: 0.25cqh solid rgba(255, 255, 255, 0.9);
+  --sk-panel-radius: 2cqh;
+  --sk-panel-shadow: 0 1.2cqh 3.2cqh rgba(10, 36, 80, 0.28), 0 0 0 0.2cqh rgba(21, 69, 143, 0.25);
+  --sk-panel-line: rgba(21, 69, 143, 0.4);
+  --sk-head-bg: linear-gradient(90deg, #15458f, #3ea8ef);
+  --sk-head-text: #ffffff;
+  --sk-head-radius: 1.4cqh;
+  --sk-head-shadow: 0 0.2cqh 0.6cqh rgba(0, 0, 0, 0.25);
+  --sk-banner-bg: linear-gradient(135deg, rgba(21, 69, 143, 0.92), rgba(62, 168, 239, 0.86));
+  --sk-banner-border: 0.3cqh solid rgba(255, 255, 255, 0.8);
+  --sk-banner-radius: 2.6cqh;
+  --sk-banner-shadow: 0 1.2cqh 3cqh rgba(10, 36, 80, 0.35), 0 0 2.4cqh rgba(244, 197, 88, 0.35);
+  --sk-banner-title: #ffffff;
+  --sk-banner-title-shadow: 0 0.3cqh 1.2cqh rgba(10, 36, 80, 0.5);
+  --sk-banner-sub-bg: transparent;
+  --sk-banner-sub-text: #ffe5b4;
+  --sk-banner-sub-line: transparent;
+  --sk-rule: linear-gradient(90deg, transparent, #f4c558 20%, #3ea8ef 80%, transparent);
+  --sk-rule-line: transparent;
+  --sk-hint-bg: rgba(255, 249, 236, 0.8);
+  --sk-hint-text: #173351;
+  --sk-hint-border: 0.2cqh solid rgba(255, 255, 255, 0.9);
+  --sk-hint-radius: 99cqh;
+  --sk-input-bg: rgba(255, 255, 255, 0.92);
+  --sk-input-text: #173351;
+  --sk-input-border: 0.25cqh solid rgba(21, 69, 143, 0.35);
+  --sk-input-radius: 1.2cqh;
+  --sk-card-border: 0.3cqh solid rgba(255, 255, 255, 0.95);
+  --sk-card-radius: 1.2cqh;
+  --sk-card-bg: linear-gradient(#3ea8ef, #a9dcff);
+  --sk-card-label-bg: linear-gradient(90deg, #15458f, #3ea8ef);
+  --sk-card-label-text: #ffffff;
+  --sk-highlight: #f4c558;
+  --sk-highlight-text: #173351;
+  --sk-stat-off: rgba(21, 69, 143, 0.12);
+  --sk-stat-on: linear-gradient(90deg, #3ea8ef, #f4c558);
+
+  & .panel {
+    backdrop-filter: blur(1.2cqh) saturate(1.2);
+  }
+  & .hint-bar {
+    backdrop-filter: blur(1cqh);
+  }
+  & .vbtn:is(.gold, .active, .primary, :hover:not(:disabled)) {
+    box-shadow: 0 0.6cqh 2cqh rgba(244, 197, 88, 0.55), inset 0 0.2cqh 0 rgba(255, 255, 255, 0.9);
+  }
+  & .card {
+    box-shadow: 0 0.6cqh 1.4cqh rgba(10, 36, 80, 0.25);
+  }
+  & .stat .bar i {
+    border-radius: 99cqh;
+    border-width: 0.15cqh;
+  }
+}

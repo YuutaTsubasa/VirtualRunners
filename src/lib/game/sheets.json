@@ -1,0 +1,921 @@
+{
+  "characters": {
+    "xiaochun": {
+      "src": "sprites/xiaochun.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.069
+      }
+    },
+    "xiaocui": {
+      "src": "sprites/xiaocui.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.242
+      }
+    },
+    "yuehua": {
+      "src": "sprites/yuehua.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.125
+      }
+    },
+    "aming": {
+      "src": "sprites/aming.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.307
+      }
+    },
+    "tangtang": {
+      "src": "sprites/tangtang.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.171
+      }
+    },
+    "cangya": {
+      "src": "sprites/cangya.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.326
+      }
+    },
+    "lanjie": {
+      "src": "sprites/lanjie.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.186
+      }
+    },
+    "jinye": {
+      "src": "sprites/jinye.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.402
+      }
+    },
+    "leo": {
+      "src": "sprites/leo.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.201
+      }
+    },
+    "alie": {
+      "src": "sprites/alie.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.312
+      }
+    },
+    "ayi": {
+      "src": "sprites/ayi.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "punch1",
+        "punch2",
+        "kick",
+        "jump",
+        "jumpkick",
+        "special",
+        "grab",
+        "knee",
+        "throw",
+        "hurt",
+        "fall",
+        "down",
+        "win",
+        "run1",
+        "run2",
+        "dash"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "kick": 1.254
+      }
+    }
+  },
+  "enemies": {
+    "city/thug": {
+      "src": "enemies/city/thug.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "city/brute": {
+      "src": "enemies/city/brute.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 9,
+      "cell": 400,
+      "fix": {
+        "attack": 1.331,
+        "windup": 1.05
+      }
+    },
+    "city/knife": {
+      "src": "enemies/city/knife.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.1
+      }
+    },
+    "city/thrower": {
+      "src": "enemies/city/thrower.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.171
+      }
+    },
+    "forest/brute": {
+      "src": "enemies/forest/brute.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 9,
+      "cell": 400,
+      "fix": {
+        "attack": 1.258
+      },
+      "scale": 1.048
+    },
+    "forest/knife": {
+      "src": "enemies/forest/knife.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.024
+      }
+    },
+    "forest/thrower": {
+      "src": "enemies/forest/thrower.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "forest/thug": {
+      "src": "enemies/forest/thug.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "sea/brute": {
+      "src": "enemies/sea/brute.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 9,
+      "cell": 400,
+      "fix": {
+        "attack": 1.266,
+        "walk2": 1.087
+      },
+      "scale": 1.225
+    },
+    "sea/knife": {
+      "src": "enemies/sea/knife.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.266
+      },
+      "scale": 1.145
+    },
+    "sea/thrower": {
+      "src": "enemies/sea/thrower.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.027
+      }
+    },
+    "sea/thug": {
+      "src": "enemies/sea/thug.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.036
+      }
+    },
+    "ice/brute": {
+      "src": "enemies/ice/brute.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 9,
+      "cell": 400,
+      "fix": {
+        "attack": 1.403,
+        "windup": 1.031,
+        "charge": 1.122
+      },
+      "scale": 1.042
+    },
+    "ice/knife": {
+      "src": "enemies/ice/knife.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.072
+      }
+    },
+    "ice/thrower": {
+      "src": "enemies/ice/thrower.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "ice/thug": {
+      "src": "enemies/ice/thug.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.059
+      }
+    },
+    "mine/brute": {
+      "src": "enemies/mine/brute.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 9,
+      "cell": 400,
+      "fix": {
+        "attack": 1.45,
+        "windup": 1.021,
+        "charge": 1.082,
+        "walk1": 1.061
+      },
+      "scale": 1.04
+    },
+    "mine/knife": {
+      "src": "enemies/mine/knife.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "mine/thrower": {
+      "src": "enemies/mine/thrower.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "mine/thug": {
+      "src": "enemies/mine/thug.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.069
+      }
+    },
+    "castle/brute": {
+      "src": "enemies/castle/brute.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 9,
+      "cell": 400,
+      "fix": {
+        "attack": 1.294,
+        "windup": 1.123,
+        "charge": 1.256
+      },
+      "scale": 1.081
+    },
+    "castle/knife": {
+      "src": "enemies/castle/knife.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.148
+      }
+    },
+    "castle/thrower": {
+      "src": "enemies/castle/thrower.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400
+    },
+    "castle/thug": {
+      "src": "enemies/castle/thug.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "attack",
+        "hurt",
+        "fall",
+        "down"
+      ],
+      "cols": 8,
+      "cell": 400,
+      "fix": {
+        "attack": 1.036
+      }
+    }
+  },
+  "bosses": {
+    "city": {
+      "src": "bosses/city.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "slam",
+        "hurt",
+        "fall",
+        "down",
+        "charge"
+      ],
+      "cols": 6,
+      "cell": 600,
+      "fix": {
+        "charge": 1.024
+      }
+    },
+    "forest": {
+      "src": "bosses/forest.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "slam",
+        "hurt",
+        "fall",
+        "down",
+        "leap"
+      ],
+      "cols": 6,
+      "cell": 600
+    },
+    "sea": {
+      "src": "bosses/sea.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "slam",
+        "hurt",
+        "fall",
+        "down",
+        "charge",
+        "cast"
+      ],
+      "cols": 6,
+      "cell": 600,
+      "fix": {
+        "walk1": 1.09
+      },
+      "scale": 1.071
+    },
+    "ice": {
+      "src": "bosses/ice.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "slam",
+        "hurt",
+        "fall",
+        "down",
+        "leap",
+        "cast"
+      ],
+      "cols": 6,
+      "cell": 600
+    },
+    "mine": {
+      "src": "bosses/mine.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "slam",
+        "hurt",
+        "fall",
+        "down",
+        "charge",
+        "leap",
+        "cast"
+      ],
+      "cols": 6,
+      "cell": 600
+    },
+    "castle": {
+      "src": "bosses/castle.webp",
+      "frames": [
+        "idle",
+        "walk1",
+        "walk2",
+        "windup",
+        "slam",
+        "hurt",
+        "fall",
+        "down",
+        "cast",
+        "vanish"
+      ],
+      "cols": 6,
+      "cell": 600,
+      "fix": {
+        "walk1": 1.101
+      }
+    }
+  },
+  "stages": [
+    "castle-1",
+    "castle-2",
+    "castle-3",
+    "city-1",
+    "city-2",
+    "city-3",
+    "forest-1",
+    "forest-2",
+    "forest-3",
+    "ice-1",
+    "ice-2",
+    "ice-3",
+    "mine-1",
+    "mine-2",
+    "mine-3",
+    "sea-1",
+    "sea-2",
+    "sea-3"
+  ],
+  "props": [
+    "castle-crate",
+    "city-crate",
+    "forest-crate",
+    "ice-crate",
+    "mine-crate",
+    "sea-crate"
+  ],
+  "items": [
+    "apple",
+    "feast",
+    "gem",
+    "meat"
+  ],
+  "shots": [
+    "bomb",
+    "bottle",
+    "bubble",
+    "dark",
+    "fire",
+    "ice",
+    "ink",
+    "magic",
+    "snowball",
+    "stone"
+  ],
+  "farLift": {
+    "city-1": 400,
+    "city-2": 400,
+    "city-3": 400
+  }
+}

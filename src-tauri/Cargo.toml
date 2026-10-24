@@ -1,0 +1,29 @@
+[package]
+name = "virtual-runners"
+version = "0.1.0"
+description = "虛擬跑跑樂：虛擬台麻館的角色們一起闖六大關的清版動作遊戲"
+edition = "2021"
+rust-version = "1.89"
+default-run = "virtual-runners"
+
+[lib]
+name = "virtual_runners_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "runner-server"
+path = "src/bin/runner-server.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+runner-core = { path = "../crates/runner-core" }
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+axum = { version = "0.8", features = ["ws"] }
+tower-http = { version = "0.6", features = ["cors"] }
+futures-util = "0.3"
+rand = "0.8"

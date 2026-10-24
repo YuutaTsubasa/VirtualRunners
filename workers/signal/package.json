@@ -1,0 +1,12 @@
+{
+  "name": "virtual-runners-signal",
+  "private": true,
+  "description": "虛擬跑跑樂線上房間的配對服務（Cloudflare Workers）",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.20.0"
+  }
+}

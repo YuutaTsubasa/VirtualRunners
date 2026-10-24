@@ -1,0 +1,37 @@
+{
+  "character": "ayi",
+  "modelId": "H01-B01",
+  "version": "face01",
+  "recordedAt": "2026-10-24T09:12:17.0076255+08:00",
+  "instruction": "使用者指定阿翼以 ProjectVtuber 的 H01-B01 模型為主要繪製參考。",
+  "model": "C:/Users/User/Repo/ProjectVtuber/projects/vrm-model/output/current/H01-B01/H01-B01_face01_VRM1.vrm",
+  "modelSha256": "17222791E8859199362240543CBBD5412324AF80E08FF6B3D5BD8D2C9D7848D0",
+  "index": "C:/Users/User/Repo/ProjectVtuber/projects/vrm-model/output/current.json",
+  "references": [
+    {
+      "file": "face-front.png",
+      "source": "C:/Users/User/Repo/ProjectVtuber/projects/vrm-model/output/trials/h01-face-proportion-2026-10-22/face01/render/H01-B01-VRM1/front.png",
+      "sha256": "2ABD8B8F00313C7912614DC131F457BFE096CF875E1B736B9D82BFDA2B971FDB",
+      "copyVerified": true
+    },
+    {
+      "file": "face-three-quarter.png",
+      "source": "C:/Users/User/Repo/ProjectVtuber/projects/vrm-model/output/trials/h01-face-proportion-2026-10-22/face01/render/H01-B01-VRM1/three-quarter.png",
+      "sha256": "CF2C20C73D991CBE2591F540C568285FE592AF926F964B4E2011DB3F701C9D16",
+      "copyVerified": true
+    },
+    {
+      "file": "armor-portrait.png",
+      "source": "C:/Users/User/Repo/ProjectVtuber/projects/vrm-model/output/avatar-icons/2026-10-22/transparent/H01-B01_face01.png",
+      "sha256": "36A740F92A2284745BB1215C4D8F3A840AAC6A5B44BA65B40489E6ED2F236EE7",
+      "copyVerified": true
+    },
+    {
+      "file": "armor-pose-small-v37.png",
+      "source": "C:/Users/User/Repo/TaiwanMahjong/docs/art/ayi/references/h01-b01-armor-small-v37.png",
+      "sha256": "5C49E4C888FBB2A47BE2267D0D2E9D2D2A9957E94B61F2214F6E8FA1080D3DDD",
+      "copyVerified": true
+    }
+  ],
+  "note": "前三張為現行 face01；small-v37 僅作初版銀甲抬手結構補充，臉部以 face01 優先。沒有改動來源專案或模型。"
+}

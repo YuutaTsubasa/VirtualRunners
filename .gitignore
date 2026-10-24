@@ -1,0 +1,21 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+crates/*/target/
+# wasm-pack 產生的單機版引擎（npm run build:wasm）
+src/lib/local/pkg/
+
+# 美術收件匣：只追蹤說明與留言，交件的圖不進版控（處理後會轉成 WebP 放進 public/）
+art-inbox/*
+!art-inbox/README.md
+!art-inbox/messages/
+!art-inbox/replies/
+!art-inbox/requests/
+!art-inbox/wait-for-claude.ps1
+
+# 配對服務（workers/signal）本機 wrangler dev 的暫存
+.wrangler/
+
+# 本機設定（例如 VITE_SIGNAL_SERVER），見 README
+.env*.local

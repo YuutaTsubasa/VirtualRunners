@@ -1,0 +1,15 @@
+[package]
+name = "runner-core"
+version = "0.1.0"
+description = "虛擬跑跑樂的遊戲引擎：跑道、跑者、電腦對手與競速房間"
+edition = "2021"
+rust-version = "1.89"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rand = { version = "0.8", features = ["small_rng"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# 讓 rand 在瀏覽器裡用 crypto.getRandomValues
+getrandom = { version = "0.2", features = ["js"] }
