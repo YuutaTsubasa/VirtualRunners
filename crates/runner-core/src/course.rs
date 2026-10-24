@@ -247,6 +247,10 @@ pub struct Course {
     pub coin_total: u32,
 }
 
+/// 踩到敵人後彈起來的速度、彈簧的速度（run.rs 用同一個值）
+pub const BOUNCE: f32 = 10.5;
+pub const SPRING: f32 = 19.5;
+
 /// 一段跑道生完後留的空間（魔王丟東西、終點前）
 const START_FLAT: f32 = 900.0;
 
@@ -350,7 +354,7 @@ impl Course {
                 if self.theme_at(start_x) != theme {
                     self.themes.push((start_x, theme));
                 }
-                (theme, endless_difficulty(start_x).min(1.0), endless_speed(start_x + 1500.0))
+                (theme, endless_difficulty(start_x).min(1.0), endless_speed(start_x + 500.0))
             }
         };
         let g = Gen { world, d, v, phys: physics_of(world), boss: self.plan.is_boss(), endless: self.plan == Plan::Endless };
@@ -411,6 +415,28 @@ impl Course {
         }
     }
 
+    /// 沿著真正的跳躍軌跡放金幣（跟 run.rs 的物理一樣：先加重力再移動）。
+    /// 從 (x0, y0) 起跳，初速 vy0；double_at = 第幾格按二段跳；往下掉到 land_y 為止。回傳落地的 x。
+    fn trail(&mut self, g: &Gen, x0: f32, y0: f32, vy0: f32, double_at: Option<u32>, land_y: f32) -> f32 {
+        let every = (40.0 / g.v).round().max(3.0) as u32;
+        let (mut x, mut y, mut vy) = (x0, y0, vy0);
+        for t in 1..400u32 {
+            if double_at == Some(t) {
+                vy = -g.phys.jump2;
+            }
+            vy += g.phys.gravity;
+            x += g.v;
+            y += vy;
+            if vy > 0.0 && y >= land_y {
+                return x;
+            }
+            if t % every == 0 {
+                self.coins.push(Coin { x, y: y - 40.0, taken: false, pulled: false });
+            }
+        }
+        x
+    }
+
     fn enemy(&mut self, kind: EnemyKind, x: f32, y: f32) {
         let id = self.id();
         let hp = if kind == EnemyKind::Brute { 2 } else { 1 };
@@ -459,21 +485,27 @@ impl Course {
                 for i in 0..n {
                     let sx = x + 160.0 + space * i as f32;
                     self.obstacle(ObKind::Spike, sx, y);
-                    self.arc_coins(sx - 70.0, sx + 110.0, y - 40.0, g.single_height() * 0.8, 5);
+                    // 最高點剛好在尖刺正上方
+                    let apex = g.phys.jump / g.phys.gravity;
+                    self.trail(g, sx + 22.0 - v * apex, y, -g.phys.jump, None, y);
                 }
             }
             Pattern::Gap => {
                 let len = g.single_reach() * rng.range(0.45, 0.75);
                 let x = self.end_x;
                 self.gap(len);
-                self.arc_coins(x - 50.0, x + len + 50.0, y - 40.0, g.single_height() * 0.75, 6);
+                // 在坑邊前一點起跳、一段跳過去
+                let takeoff = x - v * 4.0 - (g.single_reach() * 0.75 - len) * 0.5;
+                self.trail(g, takeoff, y, -g.phys.jump, None, y);
                 self.ground(g, 260.0);
             }
             Pattern::BigGap => {
                 let len = g.double_reach() * rng.range(0.55, 0.78);
                 let x = self.end_x;
                 self.gap(len);
-                self.arc_coins(x, x + len, y - 60.0, g.single_height() * 1.1, 8);
+                // 坑邊起跳、最高點按二段跳
+                let apex = (g.phys.jump / g.phys.gravity).round() as u32;
+                self.trail(g, x - v * 3.0, y, -g.phys.jump, Some(apex), y);
                 self.ground(g, 300.0);
             }
             Pattern::Steps => {
@@ -483,7 +515,13 @@ impl Course {
                 self.ground(g, 160.0);
                 self.cur_y += if up { -60.0 } else { 60.0 };
                 self.ground(g, 420.0);
-                self.arc_coins(x + 100.0, x + 360.0, self.cur_y.min(y) - 40.0, 70.0, 5);
+                if up {
+                    // 台階前起跳、落在上面一階
+                    self.trail(g, x + 160.0 - v * 12.0, y, -g.phys.jump, None, self.cur_y);
+                } else {
+                    // 從邊緣走下去會掉下來：沿著掉落的弧線
+                    self.trail(g, x + 160.0, y, 0.0, None, self.cur_y);
+                }
             }
             Pattern::Platforms => {
                 // 一大段坑上面有幾塊浮台
@@ -507,15 +545,39 @@ impl Course {
                 self.ground(g, 280.0);
             }
             Pattern::Thugs => {
+                // 一排站著的敵人：踩到第一隻彈起來剛好落在下一隻頭上（踩著一路過去），金幣沿著這條線
                 let n = 1 + rng.below(if g.d > 0.4 { 3 } else { 2 }) as usize;
+                let kind = if g.world >= 1 && rng.chance(0.25 + g.d * 0.3) { EnemyKind::Brute } else { EnemyKind::Thug };
+                let h = if kind == EnemyKind::Brute { 104.0 } else { 84.0 };
+                let top = y - h;
+                // 踩到後的彈跳（run.rs 的 bounce：vy = -10.5）回到同樣高度要幾格
+                let mut bounce = 0.0;
+                let mut vy = -BOUNCE;
+                let mut dy = 0.0;
+                while bounce < 200.0 {
+                    vy += g.phys.gravity;
+                    dy += vy;
+                    bounce += 1.0;
+                    if vy > 0.0 && dy >= 0.0 {
+                        break;
+                    }
+                }
+                let space = v * bounce;
                 let x = self.end_x;
-                let len = 300.0 + n as f32 * 230.0;
+                let first = x + 320.0;
+                let len = 320.0 + space * (n - 1) as f32 + 320.0;
                 self.ground(g, len);
                 for i in 0..n {
-                    let ex = x + 300.0 + i as f32 * 230.0;
-                    let kind = if g.world >= 1 && rng.chance(0.25 + g.d * 0.3) { EnemyKind::Brute } else { EnemyKind::Thug };
-                    self.enemy(kind, ex, y);
-                    self.arc_coins(ex - 80.0, ex + 80.0, y - 110.0, 50.0, 4);
+                    self.enemy(kind, first + space * i as f32, y);
+                }
+                // 起跳點：落下時剛好踩到第一隻的頭
+                let mut probe = Course::new(Plan::Endless, 0);
+                let dx = probe.trail(g, 0.0, y, -g.phys.jump, None, top);
+                self.trail(g, first - dx, y, -g.phys.jump, None, top);
+                for i in 0..n {
+                    let ex = first + space * i as f32;
+                    let land = if i + 1 < n { top } else { y };
+                    self.trail(g, ex, top, -BOUNCE, None, land);
                 }
             }
             Pattern::Knives => {
@@ -550,10 +612,9 @@ impl Course {
                 let x = self.end_x;
                 self.ground(g, 260.0);
                 self.springs.push(Spring { x: x + 140.0, y, t: 0 });
-                // 彈上去之後的高台與金幣
-                let air = 2.0 * 19.5 / g.phys.gravity;
-                let land = x + 140.0 + air * v * 0.55;
-                self.arc_coins(x + 160.0, land, y - 60.0, 220.0, 9);
+                // 彈簧的軌跡（run.rs：vy = -SPRING）
+                let air = 2.0 * SPRING / g.phys.gravity;
+                self.trail(g, x + 140.0, y, -SPRING, None, y);
                 let gap = air * v * 0.42;
                 self.gap(gap);
                 self.ground(g, 340.0);

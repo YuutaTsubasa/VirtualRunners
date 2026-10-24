@@ -92,6 +92,61 @@ mod tests {
         assert!(run.boss.as_ref().unwrap().hp <= 0);
     }
 
+    /// 一排站著的敵人：在第一串金幣的起點按一次跳，之後都不按，要能一路踩過整排（踩到彈起來剛好落在下一隻頭上）
+    #[test]
+    fn stomp_chain_lines_up() {
+        use crate::course::EnemyKind;
+        let mut checked = 0;
+        for world in 0..WORLDS {
+            for stage in 0..STAGES - 1 {
+                let plan = Plan::Level { world, stage };
+                let seed = (world * 31 + stage) as u64;
+                let course = Run::new(plan, "xiaocui", seed).course;
+                // 找一排（兩隻以上、間距 300 以內）站在地上的敵人
+                let es: Vec<_> = course.enemies.iter().filter(|e| matches!(e.kind, EnemyKind::Thug | EnemyKind::Brute)).collect();
+                let Some(i) = (0..es.len().saturating_sub(1)).find(|&i| es[i + 1].x - es[i].x < 300.0 && es[i + 1].kind == es[i].kind && (es[i].y - es[i + 1].y).abs() < 1.0) else { continue };
+                let mut n = 1;
+                while i + n < es.len() && es[i + n].x - es[i + n - 1].x < 300.0 && es[i + n].kind == es[i].kind {
+                    n += 1;
+                }
+                let first = es[i].x;
+                // 起跳點 = 這排前面最後一顆落在地面高度附近的金幣往回推：直接用最靠近的那串金幣的第一顆
+                let start = course.coins.iter().filter(|c| c.x < first && c.x > first - 320.0).map(|c| c.x).fold(f32::MAX, f32::min);
+                let mut run = Run::new(plan, "xiaocui", seed);
+                let v = run.speed();
+                // 第一顆金幣是起跳後第 every 格的位置
+                let every = (40.0 / v).round().max(3.0);
+                let takeoff = start - v * every;
+                let mut stomps = 0;
+                let mut jumped = false;
+                let mut hurt = false;
+                for _ in 0..60 * 120 {
+                    let press = !jumped && run.phase == Phase::Run && run.r.x + v > takeoff && run.r.on_ground;
+                    if press {
+                        jumped = true;
+                    }
+                    let hits = run.hits;
+                    run.step(Input { jump: press, ..Input::default() });
+                    hurt |= jumped && run.hits > hits;
+                    stomps += run.events.iter().filter(|e| matches!(e, crate::run::Event::Kill { .. } | crate::run::Event::Bump { .. })).count();
+                    if jumped && run.r.on_ground && run.r.x > first + 50.0 {
+                        break;
+                    }
+                    if run.done() {
+                        break;
+                    }
+                }
+                if !jumped || run.r.x < first - 400.0 {
+                    continue; // 還沒跑到就倒了（前面別的機關），換下一關
+                }
+                assert!(!hurt, "{}-{}：照金幣跳，踩第一排敵人時受傷了", world + 1, stage + 1);
+                assert_eq!(stomps, n, "{}-{}：照金幣跳一次，應該一路踩過 {} 隻", world + 1, stage + 1, n);
+                checked += 1;
+            }
+        }
+        assert!(checked >= 5, "可以檢查的敵人排太少：{}", checked);
+    }
+
     #[test]
     fn room_race_with_bots() {
         let mut room = Room::new(Settings { difficulty: Difficulty::Hard, ..Settings::default() });

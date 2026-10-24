@@ -5,7 +5,7 @@
 //! 沒有敵人就往前飛一小段）。
 
 use crate::characters::{ability_of, Ability};
-use crate::course::{physics_of, endless_speed, level_speed, Course, EnemyKind, ItemKind, ObKind, Physics, Plan, Shot, GROUND, PIT_Y, WORLDS};
+use crate::course::{BOUNCE, SPRING, physics_of, endless_speed, level_speed, Course, EnemyKind, ItemKind, ObKind, Physics, Plan, Shot, GROUND, PIT_Y, WORLDS};
 use serde::Serialize;
 use serde_json::{json, Value};
 
@@ -655,11 +655,8 @@ impl Run {
             e.t += 1;
             let near = e.x - rx;
             match e.kind {
-                EnemyKind::Thug => {
-                    if near < 700.0 {
-                        e.x -= 1.0;
-                    }
-                }
+                // 小混混站著不動（金幣與踩踏的節奏是照站著的位置排的）
+                EnemyKind::Thug => {}
                 EnemyKind::Knife => {
                     if near < 520.0 {
                         e.vx = (e.vx - 0.4).max(-4.5);
@@ -678,7 +675,7 @@ impl Run {
         }
         // 走路的敵人走到沒地板的地方就停（不要自己掉下去）
         let solids = self.course.solids.clone();
-        for e in self.course.enemies.iter_mut().filter(|e| e.alive && matches!(e.kind, EnemyKind::Thug | EnemyKind::Knife)) {
+        for e in self.course.enemies.iter_mut().filter(|e| e.alive && e.kind == EnemyKind::Knife) {
             let on = solids.iter().any(|s| e.x - 10.0 > s.x0 && e.x + 10.0 < s.x1 && (s.y - e.y).abs() < 1.0);
             if !on {
                 e.x += if e.kind == EnemyKind::Knife { -e.vx } else { 1.0 };
@@ -907,7 +904,7 @@ impl Run {
             sp.t = (sp.t - 1).max(0);
         }
         if sprung {
-            self.r.vy = -19.5;
+            self.r.vy = -SPRING;
             self.r.on_ground = false;
             self.r.jumps_left = self.ab.jumps - 1;
             self.r.air_dash_left = 1;
@@ -936,7 +933,7 @@ impl Run {
             }
         }
         if bounce {
-            self.r.vy = -10.5;
+            self.r.vy = -BOUNCE;
             self.r.on_ground = false;
             self.r.homing = None;
             self.r.jumps_left = self.r.jumps_left.max(1);
