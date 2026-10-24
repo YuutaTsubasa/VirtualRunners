@@ -1,6 +1,6 @@
 <script>
   // 選角（art-work/runner-ui-concept-v1/02-character-select）：左上是目前角色的大幅奔跑姿態（踩在晴空藍的速度帶上），
-  // 右邊白色能力牌（名字、小能力、說明），底下兩排名冊（10 位＋隱藏角色）。每個角色的能力不一樣
+  // 右邊白色能力牌（名字、小能力、說明），底下一排名冊（10 位＋隱藏角色）。每個角色的能力不一樣
   // （數值在 crates/runner-core/src/characters.rs）。阿翼沒解鎖前不露出身份。
   import { onMount, untrack } from 'svelte';
   import { CHARACTERS, isUnlocked } from '../game/characters.js';
@@ -78,7 +78,7 @@
     </div>
 
     <div class="roster panel">
-      <CharacterGrid bind:this={grid} bind:cursor columns={6} onpick={(c) => pick(c)} />
+      <CharacterGrid bind:this={grid} bind:cursor columns={11} onpick={(c) => pick(c)} />
     </div>
   </div>
 
@@ -208,12 +208,12 @@
   .roster :global(.grid) {
     gap: 1cqh 0.8cqw;
   }
+  /* 名冊：11 位排一排，格子接近正方形，整張臉都看得到 */
   .roster :global(.card) {
     aspect-ratio: auto;
-    height: 12.6cqh;
+    height: 17cqh;
   }
-  /* 名冊格子比較寬：臉放在中間 */
   .roster :global(.card img) {
-    object-position: center 24%;
+    object-position: center 18%;
   }
 </style>

@@ -11,7 +11,7 @@
   environment/<大關>-<小關>/{far,mid,ground}.png   1920×1080
   props/<大關>-crate.png、props/items/*.png、props/shots/*.png
   props/runner/*.png（跑酷的道具，照交件尺寸存；清單在 sheets.json 的 runner）
-  ui/*.png（Logo 不接：介面改用 UI Concept v1 的 Logo）
+  ui/*.png（Logo 縮成 1200 寬、保留透明；標題圖等其他插圖照原尺寸）
 
 產出（都是 WebP）：
   public/sprites/<id>.webp                   8×2 圖集（每格 400），格子順序見 src/lib/game/sheets.json
@@ -266,6 +266,18 @@ def main(src):
                     written.append(save(load(os.path.join(d, f)), f'props/{sub}/{name}.webp'))
                     if name not in sheets[key]:
                         sheets[key].append(name)
+
+    # 介面插圖（Logo、標題主視覺、模式插圖）：Logo 太大了（2000 多寬），縮成 1200 寬就夠清楚
+    ui = os.path.join(src, 'ui')
+    for f in sorted(os.listdir(ui)) if os.path.isdir(ui) else []:
+        if f.endswith('.png'):
+            name = f[:-4]
+            im = load(os.path.join(ui, f))
+            if name == 'logo' and im.width > 1200:
+                im = im.resize((1200, round(im.height * 1200 / im.width)), Image.LANCZOS)
+            elif im.getchannel('A').getextrema()[0] == 255:
+                im = im.convert('RGB')
+            written.append(save(im, f'ui/{name}.webp'))
 
     for k in ('stages', 'props', 'items', 'shots', 'runner'):
         sheets[k].sort()

@@ -211,9 +211,11 @@
         "ui/icons/sound-on.webp",
         "ui/icons/touch.webp",
         "ui/icons/watch.webp",
+        "ui/logo.webp",
         "ui/portrait-frame.webp",
         "ui/portrait-selected.webp",
-        "ui/result-banner.webp"
+        "ui/result-banner.webp",
+        "ui/title-scene.webp"
       ],
       "config": {}
     },
