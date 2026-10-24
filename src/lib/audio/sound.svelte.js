@@ -149,13 +149,6 @@ export const sfx = {
     drum(out(), 'k', t, 0.9);
     noiseHit(out(), t, { type: 'lowpass', freq: 700, q: 0.6, vol: 0.5, decay: 0.3 });
   },
-  /** 起跳 */
-  jump() {
-    if (!ready()) return;
-    const t = now();
-    ssgNote(out(), 72, t, 0.03, 0.6);
-    ssgNote(out(), 79, t + 0.035, 0.04, 0.6);
-  },
   /** 落地 */
   land() {
     if (!ready()) return;
@@ -260,6 +253,94 @@ export const sfx = {
     for (let i = 0; i < 3; i++) {
       fmNote(out(), 'brass', 50, t + i * 0.22, 0.16, 1);
       fmNote(out(), 'brass', 49, t + i * 0.22 + 0.1, 0.1, 1);
+    }
+  },
+
+  // ── 跑酷 ──
+  /** 金幣：兩個很快的高音鈴（經典的「叮－叮」） */
+  coin() {
+    if (!ready()) return;
+    const t = now();
+    fmNote(out(), 'bell', 95, t, 0.05, 0.5);
+    fmNote(out(), 'bell', 100, t + 0.045, 0.16, 0.5);
+  },
+  /** 起跳：方波往上掃 */
+  jump() {
+    if (!ready()) return;
+    const t = now();
+    [67, 71, 74, 79].forEach((m, i) => ssgNote(out(), m, t + i * 0.018, 0.022, 0.55));
+  },
+  /** 二段跳：更高、更亮，加一點鈴聲 */
+  double() {
+    if (!ready()) return;
+    const t = now();
+    [74, 79, 83, 86].forEach((m, i) => ssgNote(out(), m, t + i * 0.016, 0.02, 0.5));
+    fmNote(out(), 'bell', 91, t + 0.06, 0.1, 0.35);
+  },
+  /** 滑行：鞋底摩擦地面的「咻──」 */
+  slide() {
+    if (!ready()) return;
+    noiseHit(out(), now(), { type: 'bandpass', freq: 2200, q: 0.8, vol: 0.22, decay: 0.22 });
+  },
+  /** 衝刺：風聲＋低音銅管一下 */
+  dash() {
+    if (!ready()) return;
+    const t = now();
+    noiseHit(out(), t, { type: 'highpass', freq: 1800, q: 0.6, vol: 0.28, decay: 0.16 });
+    fmNote(out(), 'brass', 55, t, 0.08, 0.6);
+  },
+  /** 空中追擊：鎖定的「嗶」＋往上衝 */
+  homing() {
+    if (!ready()) return;
+    const t = now();
+    ssgNote(out(), 88, t, 0.03, 0.8);
+    [76, 81, 86, 91].forEach((m, i) => ssgNote(out(), m, t + 0.04 + i * 0.015, 0.02, 0.5));
+    noiseHit(out(), t + 0.03, { type: 'highpass', freq: 2600, q: 0.6, vol: 0.18, decay: 0.12 });
+  },
+  /** 踩扁／撞飛敵人：「啵」＋往下的方波 */
+  stomp() {
+    if (!ready()) return;
+    const t = now();
+    fmNote(out(), 'thud', 52, t, 0.07, 0.9);
+    [79, 74, 67].forEach((m, i) => ssgNote(out(), m, t + i * 0.03, 0.03, 0.7));
+  },
+  /** 彈簧：「啵嚶～」往上的琶音 */
+  spring() {
+    if (!ready()) return;
+    const t = now();
+    fmNote(out(), 'slap', 60, t, 0.05, 0.8);
+    [60, 64, 67, 72, 76, 79, 84].forEach((m, i) => ssgNote(out(), m, t + 0.02 + i * 0.02, 0.025, 0.55));
+  },
+  /** 護盾（拿到、破掉、長回來）：鈴聲閃一下 */
+  shield() {
+    if (!ready()) return;
+    const t = now();
+    [84, 88, 91].forEach((m, i) => fmNote(out(), 'bell', m, t + i * 0.04, 0.12, 0.45));
+  },
+  /** 掉進坑：往下滑的方波 */
+  fall() {
+    if (!ready()) return;
+    const t = now();
+    [79, 76, 72, 69, 65, 62, 57].forEach((m, i) => ssgNote(out(), m, t + i * 0.045, 0.05, 0.7));
+  },
+  /** 倒數的「嗶」（3、2、1） */
+  count() {
+    if (!ready()) return;
+    ssgNote(out(), 81, now(), 0.09, 1.2);
+  },
+  /** 過終點：短短的上行和弦 */
+  goal() {
+    if (!ready()) return;
+    const t = now();
+    [72, 76, 79, 84].forEach((m, i) => fmNote(out(), 'brass', m, t + i * 0.07, 0.18, 0.7));
+  },
+  /** 魔王被打倒：連續爆炸 */
+  bossdown() {
+    if (!ready()) return;
+    const t = now();
+    for (let i = 0; i < 4; i++) {
+      drum(out(), 'k', t + i * 0.12, 1.1);
+      noiseHit(out(), t + i * 0.12, { type: 'lowpass', freq: 900, q: 0.6, vol: 0.45, decay: 0.2 });
     }
   },
 

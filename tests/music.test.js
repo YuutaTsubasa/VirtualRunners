@@ -42,5 +42,6 @@ test('every chord name in the progressions is understood', () => {
 });
 
 test('scenes and jingles the app asks for exist', () => {
-  for (const name of ['title', 'menu', 'match', 'tension', 'win', 'lose']) assert.ok(SONGS[name], name);
+  const worlds = ['city', 'forest', 'sea', 'ice', 'mine', 'castle'].map((w) => `stage-${w}`);
+  for (const name of ['title', 'menu', 'tension', 'win', 'lose', ...worlds]) assert.ok(SONGS[name], name);
 });

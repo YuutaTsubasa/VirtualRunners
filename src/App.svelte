@@ -63,8 +63,9 @@
     waiting = false;
   }
 
-  // 魔王出現時換緊張的曲子
+  // 魔王出現時換緊張的曲子；平常照現在跑到的大關放那一關的曲子（無盡模式換場景就換曲）
   let bossFight = $state(false);
+  let musicWorld = $state(0);
   // 連線：房主送來的比賽狀態（只記會改變畫面的部分，影格本身交給 engine）
   let racePhase = $state(null); // countdown | racing | results
   let raceResults = $state(null);
@@ -77,6 +78,7 @@
       onEvent: (e) => {
         if (e.type === 'boss') bossFight = true;
         else if (e.type === 'bossdown') bossFight = false;
+        else if (e.type === 'theme') musicWorld = e.world;
       },
     });
     window.__vr = engine;
@@ -132,6 +134,7 @@
       raceResults = null;
       racePlan = s.plan;
       bossFight = false;
+      musicWorld = s.plan.kind === 'level' ? s.plan.world : 0;
       const mine = s.runners.find((r) => r.seat === net.seat);
       if (mine && s.t < COUNTDOWN + 30) {
         ensureArt();
@@ -150,12 +153,13 @@
 
   const view = $derived(roomPhase ? `online-${roomPhase}` : screen);
 
-  // 背景音樂：依畫面切換
+  // 背景音樂：依畫面切換（src/lib/audio/songs.js）
+  const stageSong = $derived(bossFight ? 'tension' : `stage-${WORLDS[musicWorld]?.id ?? 'city'}`);
   const scene = $derived.by(() => {
     if (view === 'online-lobby') return 'menu';
-    if (view === 'online-playing') return raceResults ? 'menu' : bossFight ? 'tension' : 'match';
+    if (view === 'online-playing') return raceResults ? 'menu' : stageSong;
     if (screen === 'title') return 'title';
-    if (screen === 'play' || screen === 'pause') return bossFight ? 'tension' : 'match';
+    if (screen === 'play' || screen === 'pause') return stageSong;
     return 'menu';
   });
   $effect(() => setBgm(scene));
@@ -185,6 +189,7 @@
     demo = isDemo;
     result = null;
     bossFight = false;
+    musicWorld = p.kind === 'level' ? p.world : 0;
     await engine.startLocal({ plan: p, character: who, demo: isDemo });
     screen = 'play';
   }

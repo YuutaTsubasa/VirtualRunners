@@ -23,24 +23,24 @@ const REPORT_EVERY = 4;
 const EVENT_SOUND = {
   go: 'go',
   jump: 'jump',
-  double: 'jump',
-  slide: 'land',
-  dash: 'swing',
-  homing: 'swing',
-  coin: 'pickup',
-  kill: 'punch',
+  double: 'double',
+  slide: 'slide',
+  dash: 'dash',
+  homing: 'homing',
+  coin: 'coin',
+  kill: 'stomp',
   bump: 'heavy',
   break: 'crack',
   item: 'pickup',
-  spring: 'jump',
+  spring: 'spring',
   hurt: 'hurt',
-  shield: 'cursor',
-  fall: 'ko',
+  shield: 'shield',
+  fall: 'fall',
   shot: 'shoot',
   boss: 'alarm',
   bosshit: 'heavy',
-  bossdown: 'ko',
-  goal: 'go',
+  bossdown: 'bossdown',
+  goal: 'goal',
 };
 
 const wasmReady = init();
@@ -64,7 +64,14 @@ export function createEngine(canvas, { onEnd = () => {}, onEvent = () => {} }) {
   let ready = false;
   wasmReady.then(() => (ready = true));
 
+  let lastCount = 0;
   function handle(v) {
+    // 倒數 3、2、1 各嗶一聲（GO 由 go 事件放）
+    if (v.phase === 'ready') {
+      const n = Math.ceil(v.ready / 60);
+      if (n !== lastCount && n <= 3) play('count');
+      lastCount = n;
+    } else lastCount = 0;
     for (const e of v.events) {
       if (EVENT_SOUND[e.type]) play(EVENT_SOUND[e.type]);
       onEvent(e, v);
