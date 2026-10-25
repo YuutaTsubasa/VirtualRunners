@@ -9,7 +9,7 @@
 import { W, H, GROUND, SCREEN_X, SLOT_COLORS, COUNTDOWN } from './constants.js';
 import { getCharacter } from './characters.js';
 import { WORLDS, stageLabel, backdropOf } from './stages.js';
-import { drawScenery, drawAmbient } from './scenery.js';
+import { drawScenery, drawAmbient, sceneryLoaded } from './scenery.js';
 import { SHEETS, sheetOf } from './sheets.js';
 import { asset, currentConfig } from '../art-style.svelte.js';
 import { loadImage } from '../preload.svelte.js';
@@ -1390,6 +1390,12 @@ function drawSpectate(g, race) {
   drawGhosts(g, race, null, leader - SCREEN_X - 200);
   outlinedText(g, t('觀戰中'), W / 2, 40, 26, '#ffd84a');
   if (race) drawRaceBoard(g, race, null, 80);
+}
+
+/** 開跑前：等第一個畫面要用的背景載好（最多等 ms 毫秒，網路很慢時不要一直卡住） */
+export function prepare(v, ms = 4000) {
+  const sub = v.plan.kind === 'level' ? backdropOf(v.plan.stage) : Math.floor(v.cam / 60000) % 3;
+  return Promise.race([sceneryLoaded(v.world, sub), new Promise((resolve) => setTimeout(resolve, ms))]);
 }
 
 export function draw(canvas, v, { race = null, you = null, spectate = false, keys = false } = {}) {

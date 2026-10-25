@@ -153,6 +153,7 @@ export function createEngine(canvas, { onEnd = () => {}, onEvent = () => {} }) {
       you = null;
       const r = new LocalRun(JSON.stringify(plan), character, '');
       if (demo) r.setAi('hard');
+      await render.prepare(JSON.parse(r.state()));
       begin(r, 'local');
     },
     /** 連線比賽：照房主送來的種子開自己的跑道；倒數照房主的時間對齊 */
@@ -160,6 +161,8 @@ export function createEngine(canvas, { onEnd = () => {}, onEvent = () => {} }) {
       await wasmReady;
       you = seat;
       const r = new LocalRun(JSON.stringify(plan), character, String(seed));
+      // 倒數本來就會照房主的時鐘對齊，這裡只短短等一下背景
+      await render.prepare(JSON.parse(r.state()), 1500);
       r.setReady(Math.max(1, COUNTDOWN - t));
       // 一起闖關（關卡）：心沒了變靈魂等隊友救；無盡比分沒有
       r.setCoop(plan.kind === 'level');

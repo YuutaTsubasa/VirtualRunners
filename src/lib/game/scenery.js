@@ -6,7 +6,7 @@ import { W, H, Z_TOP } from './constants.js';
 import { WORLDS } from './stages.js';
 import SHEETS from './sheets.json' with { type: 'json' };
 import { asset } from '../art-style.svelte.js';
-import { loadImage } from '../preload.svelte.js';
+import { loadImage, whenLoaded } from '../preload.svelte.js';
 
 const TILE = W;
 const SPEED = { far: 0.18, mid: 0.5, ground: 1 };
@@ -443,6 +443,13 @@ function artLayers(world, sub) {
   if (!SHEETS.stages?.includes(key)) return null;
   const imgs = ['far', 'mid', 'ground'].map((l) => loadImage(asset(`stages/${key}/${l}.webp`)));
   return imgs.every((i) => i.complete && i.naturalWidth > 0) ? imgs : null;
+}
+
+/** 這一關背景的三層圖載完（沒有圖的關直接好）：開跑前先等，免得頭幾格畫成程式畫的備用背景 */
+export function sceneryLoaded(world, sub) {
+  const key = `${WORLDS[world].id}-${sub + 1}`;
+  if (!SHEETS.stages?.includes(key)) return Promise.resolve();
+  return Promise.all(['far', 'mid', 'ground'].map((l) => whenLoaded(asset(`stages/${key}/${l}.webp`))));
 }
 
 export function drawScenery(g, world, sub, camera, scale) {

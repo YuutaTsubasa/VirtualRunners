@@ -28,6 +28,12 @@ export function loadImage(src) {
   return img;
 }
 
+/** 等這張圖載完（或失敗）；還沒開始載就順便開始載 */
+export function whenLoaded(src) {
+  loadImage(src);
+  return pending.get(src);
+}
+
 export const loading = $state({ style: null, done: 0, total: 0 });
 
 const styles = new Map(); // 風格 → 全部載完的 Promise
