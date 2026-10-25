@@ -705,7 +705,18 @@
         "characters/yuehua/normal.webp",
         "characters/yuehua/sad.webp",
         "characters/yuehua/surprised.webp",
-        "characters/yuehua/win.webp"
+        "characters/yuehua/win.webp",
+        "sprites/alie.webp",
+        "sprites/aming.webp",
+        "sprites/ayi.webp",
+        "sprites/cangya.webp",
+        "sprites/jinye.webp",
+        "sprites/lanjie.webp",
+        "sprites/leo.webp",
+        "sprites/tangtang.webp",
+        "sprites/xiaochun.webp",
+        "sprites/xiaocui.webp",
+        "sprites/yuehua.webp"
       ],
       "config": {}
     },
