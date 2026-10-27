@@ -1,12 +1,15 @@
 // 連線狀態（全域），做法跟 TaiwanMahjong 的 net.svelte.js 一樣。兩種房間：
 //   區網：房主的 App 內建伺服器（src-tauri/src/server.rs），用 WebSocket 連
-//   線上：房主的瀏覽器就是伺服器（local/host-worker.js），其他人用 WebRTC 直連（p2p.js），
-//         只有配對時經過 Cloudflare 的小服務（workers/signal）
+//   線上：房主的瀏覽器就是伺服器（local/host-worker.js），其他人用 WebRTC 直連（virtual-core/net/p2p.js），
+//         只有配對時經過 Cloudflare 的小服務（VirtualCore 的 workers/signal）
 // 兩種房間傳的訊息一樣（hello、progress、host、room、frame、welcome、error），只有傳輸層不同。
 import { isTauri, invoke } from '@tauri-apps/api/core';
 import { SIGNAL_SERVER, ROOM_CODE_CHARS } from './site.js';
-import { P2PHost, P2PGuest, signalAvailable } from './p2p.js';
+import { P2PHost, P2PGuest, signalAvailable, setTranslator } from 'virtual-core/net/p2p.js';
 import { t, serverText } from './i18n.svelte.js';
+
+// VirtualCore 的 p2p.js 顯示錯誤訊息時用跑跑樂的翻譯
+setTranslator(t);
 
 export const inTauri = isTauri();
 export const DEFAULT_PORT = 7811;

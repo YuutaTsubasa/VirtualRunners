@@ -1,7 +1,8 @@
 // 音樂與音效的總管：設定（音量、靜音）、依畫面切換 BGM、短曲、比賽與介面音效。
 // 架構跟 TaiwanMahjong 的 src/lib/audio/sound.svelte.js 一樣，音效換成清版動作用的。
-import { audioContext, buses, fmNote, ssgNote, drum, noiseHit, setBusVolume, PATCHES } from './synth.js';
-import { Player, SONGS } from './music.js';
+import { audioContext, buses, fmNote, ssgNote, drum, noiseHit, setBusVolume, PATCHES } from 'virtual-core/audio/synth.js';
+import { Player } from 'virtual-core/audio/music.js';
+import { SONGS } from './songs.js';
 
 function load(key, fallback) {
   try {

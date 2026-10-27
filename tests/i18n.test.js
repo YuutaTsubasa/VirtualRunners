@@ -10,7 +10,9 @@ const SRC = join(ROOT, 'src');
 const CJK = /[぀-ヿ㐀-鿿！-｠]/;
 
 // 不是畫面上的字：資料清單、音色表
-const SKIP_FILES = new Set(['src/lib/audio/synth.js', 'src/lib/audio/songs.js', 'src/lib/audio/music.js']);
+const SKIP_FILES = new Set(['src/lib/audio/songs.js']);
+// VirtualCore 裡會顯示在畫面上的字（用跑跑樂的翻譯，見 net.svelte.js 的 setTranslator）
+const CORE_FILES = ['net/p2p.js'].map((f) => join(ROOT, 'node_modules', 'virtual-core', 'src', f));
 // 不用翻的字：語言名稱（每種語言都用自己的寫法）、程式裡比對用的字
 const IGNORE = new Set(['中文', '日本語', '左邊']);
 
@@ -75,7 +77,7 @@ const params = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join
 
 test('every on-screen Chinese string has English and Japanese translations', async () => {
   const keys = new Map(); // 原文 → 第一次出現的檔案
-  for (const f of files(SRC)) {
+  for (const f of [...files(SRC), ...CORE_FILES]) {
     const rel = relative(ROOT, f).replaceAll('\\', '/');
     if (SKIP_FILES.has(rel)) continue;
     for (const s of literals(readFileSync(f, 'utf8'))) if (!keys.has(s) && !IGNORE.has(s)) keys.set(s, rel);

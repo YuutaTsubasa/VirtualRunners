@@ -15,7 +15,8 @@
     "server": "cargo run --manifest-path src-tauri/Cargo.toml --bin runner-server --"
   },
   "dependencies": {
-    "@tauri-apps/api": "~2.11.0"
+    "@tauri-apps/api": "~2.11.0",
+    "virtual-core": "github:YuutaTsubasa/VirtualCore#v0.1.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5",
