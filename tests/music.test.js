@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SONGS } from '../src/lib/audio/songs.js';
-import { parseMML, chordNotes } from '../src/lib/audio/synth.js';
+import { parseMML, chordNotes } from 'virtual-core/audio/synth.js';
 
 const bars = (mml) => mml.split('|').map((b) => b.trim()).filter(Boolean);
 const beatsOfProg = (prog) => prog.split(/\s+/).filter(Boolean).reduce((sum, tok) => sum + Number(tok.split(':')[1] ?? 4), 0);
