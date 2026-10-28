@@ -19,6 +19,7 @@ mod tests {
     use crate::course::{Plan, STAGES, WORLDS};
     use crate::room::{Room, Settings};
     use crate::run::{Input, Phase, Run};
+    use virtual_room::RoomGame;
 
     /// 交給電腦跑，最多 frames 格
     fn auto(plan: Plan, character: &str, seed: u64, d: Difficulty, frames: usize) -> Run {
@@ -199,6 +200,13 @@ mod tests {
         room.tick();
         assert_eq!(room.frame().unwrap()["runners"][1]["p"]["meters"], 41);
         assert!(drop_conn(&mut room, &mut guest));
+        // 比賽中斷線算棄權，不換成電腦
+        assert_eq!(room.seats[1].as_ref().unwrap().kind, crate::room::SeatKind::Human);
+        assert_eq!(room.frame().unwrap()["runners"][1]["p"]["out"], true);
+        // 比賽中房主移除座位：座位直接空出來，也不在跑道上了
+        let (_, changed) = handle(&mut room, "key", &mut host, &json!({"type": "host", "cmd": "remove", "seat": 7}));
+        assert!(changed && room.seats[7].is_none());
+        assert!(room.frame().unwrap()["runners"].as_array().unwrap().iter().all(|r| r["seat"] != 7));
         let mut back = Conn::default();
         handle(&mut room, "key", &mut back, &json!({"type": "hello", "token": token}));
         assert_eq!(back.seat, Some(1));

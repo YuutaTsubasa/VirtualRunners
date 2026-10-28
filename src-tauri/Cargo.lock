@@ -2675,6 +2675,7 @@ dependencies = [
  "rand 0.8.8",
  "serde",
  "serde_json",
+ "virtual-room",
 ]
 
 [[package]]
@@ -3982,19 +3983,41 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
-name = "virtual-runners"
-version = "0.1.0"
+name = "virtual-lan"
+version = "0.6.0"
+source = "git+https://github.com/YuutaTsubasa/VirtualCore?branch=claude%2Fforfeit-hooks#231c5d3964341d7f55b77b7ae9522e8f2793fce0"
 dependencies = [
  "axum",
  "futures-util",
  "rand 0.8.8",
+ "serde_json",
+ "tokio",
+ "tower-http",
+ "virtual-room",
+]
+
+[[package]]
+name = "virtual-room"
+version = "0.6.0"
+source = "git+https://github.com/YuutaTsubasa/VirtualCore?branch=claude%2Fforfeit-hooks#231c5d3964341d7f55b77b7ae9522e8f2793fce0"
+dependencies = [
+ "getrandom 0.2.17",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "virtual-runners"
+version = "0.1.0"
+dependencies = [
  "runner-core",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tokio",
- "tower-http",
+ "virtual-lan",
 ]
 
 [[package]]

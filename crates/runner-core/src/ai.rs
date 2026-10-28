@@ -4,32 +4,16 @@
 
 use crate::course::Rng;
 use crate::run::{Event, Input, Phase, Run};
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum Difficulty {
-    Easy,
-    #[default]
-    Normal,
-    Hard,
-}
+/// 電腦的強度：Virtual 系列共用（virtual-room），各款自己決定每種強度的參數（見 daze）
+pub use virtual_room::Difficulty;
 
-impl Difficulty {
-    pub fn label(&self) -> &'static str {
-        match self {
-            Difficulty::Easy => "簡單",
-            Difficulty::Normal => "普通",
-            Difficulty::Hard => "困難",
-        }
-    }
-    /// 每格「發呆」的機率（發呆的時候不按任何鍵）
-    fn daze(&self) -> f32 {
-        match self {
-            Difficulty::Easy => 0.010,
-            Difficulty::Normal => 0.0035,
-            Difficulty::Hard => 0.0,
-        }
+/// 每格「發呆」的機率（發呆的時候不按任何鍵）
+fn daze(difficulty: Difficulty) -> f32 {
+    match difficulty {
+        Difficulty::Easy => 0.010,
+        Difficulty::Normal => 0.0035,
+        Difficulty::Hard => 0.0,
     }
 }
 
@@ -128,7 +112,7 @@ impl Ai {
             self.daze -= 1;
             return N;
         }
-        if self.rng.chance(self.difficulty.daze()) {
+        if self.rng.chance(daze(self.difficulty)) {
             self.daze = 18;
             self.queue.clear();
             return N;
