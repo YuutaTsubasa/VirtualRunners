@@ -1,5 +1,6 @@
 //! 房間：最多八個座位（真人或電腦對手）、觀眾、聊天、開跑／再跑一次／回大廳。
-//! 不碰網路，伺服器（src-tauri/src/server.rs）或線上房主（crates/runner-wasm）每 1/60 秒呼叫 `tick()`。
+//! 座位、房主、聊天這些共通的部分在 VirtualCore 的 virtual-room（`Lobby`），這裡只放這款的比賽。
+//! 不碰網路，伺服器（VirtualCore 的 virtual-lan）或線上房主（crates/runner-wasm）每 1/60 秒呼叫 `tick()`。
 //!
 //! 跑酷的玩家之間不會互相碰撞，所以比賽不在這裡跑：每個人在自己的電腦上跑同一條跑道（同一個種子），
 //! 每秒幾次回報「跑到哪、分數多少、剩幾顆心、過終點了沒」，房間收齊了再轉給大家（半透明地疊在同一條路上）。
@@ -10,24 +11,20 @@ use crate::ai::{Ai, Difficulty};
 use crate::characters::{is_character, random_character};
 use crate::course::{Plan, STAGES, WORLDS};
 use crate::run::{Phase, Run, COUNTDOWN};
-use rand::distributions::Alphanumeric;
 use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use std::ops::{Deref, DerefMut};
+use virtual_room::{Game, Lobby, RoomGame};
+
+pub use virtual_room::{Seat, SeatKind};
 
 pub const MAX_PLAYERS: usize = 8;
 /// 第一個人過終點之後，其他人還有幾秒
 const FINISH_GRACE: u32 = 45 * 60;
 /// 比賽影格每幾格送一次（60 / 4 = 每秒 15 次）
 const FRAME_EVERY: u32 = 4;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum SeatKind {
-    Human,
-    Bot,
-}
 
 /// 跑者回報的進度（真人自己回報，電腦對手由房間算）
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -52,15 +49,6 @@ pub struct Progress {
     pub hits: u32,
     /// 自己已經被救回來幾次（跟房間的 revive 次數比，少了就要復活）
     pub rev: u32,
-}
-
-pub struct Seat {
-    pub name: String,
-    pub character: String,
-    pub kind: SeatKind,
-    pub difficulty: Difficulty,
-    pub token: String,
-    pub connected: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -89,16 +77,6 @@ impl Settings {
         }
     }
 }
-
-#[derive(Clone, Debug, Serialize)]
-struct ChatLine {
-    seat: Option<usize>,
-    name: String,
-    text: String,
-    sys: bool,
-}
-
-const MAX_CHAT: usize = 60;
 
 struct Entry {
     seat: usize,
@@ -138,15 +116,36 @@ pub struct Race {
     coin_total: u32,
 }
 
+/// 這款的房間規則
+pub struct Runners;
+
+impl Game for Runners {
+    type Settings = Settings;
+    type SeatState = ();
+    const SEATS: usize = MAX_PLAYERS;
+
+    fn joined_text(name: &str, seat: usize) -> String {
+        format!("{} 坐到了 {}P", name, seat + 1)
+    }
+    fn is_character(id: &str) -> bool {
+        is_character(id)
+    }
+    fn random_character(rng: &mut SmallRng, avoid: &[&str]) -> &'static str {
+        random_character(rng, avoid)
+    }
+    fn clamp_settings(settings: Settings) -> Settings {
+        Settings { world: settings.world.min(WORLDS - 1), stage: settings.stage.min(STAGES - 1), ..settings }
+    }
+    fn seat_difficulty(settings: &Settings) -> Difficulty {
+        settings.difficulty
+    }
+}
+
 pub struct Room {
-    pub seats: [Option<Seat>; MAX_PLAYERS],
-    pub host_seat: Option<usize>,
-    pub settings: Settings,
+    pub lobby: Lobby<Runners>,
     pub race: Option<Race>,
-    chat: Vec<ChatLine>,
-    rng: SmallRng,
     /// 這一格比賽剛結束（大廳資訊要更新）
-    pub ended_now: bool,
+    ended_now: bool,
 }
 
 impl Default for Room {
@@ -155,85 +154,23 @@ impl Default for Room {
     }
 }
 
+// 座位、聊天、入席這些直接用大廳的（room.join(…)、room.seats…）
+impl Deref for Room {
+    type Target = Lobby<Runners>;
+    fn deref(&self) -> &Lobby<Runners> {
+        &self.lobby
+    }
+}
+
+impl DerefMut for Room {
+    fn deref_mut(&mut self) -> &mut Lobby<Runners> {
+        &mut self.lobby
+    }
+}
+
 impl Room {
     pub fn new(settings: Settings) -> Self {
-        Room {
-            seats: Default::default(),
-            host_seat: None,
-            settings,
-            race: None,
-            chat: Vec::new(),
-            rng: SmallRng::from_entropy(),
-            ended_now: false,
-        }
-    }
-
-    pub fn playing(&self) -> bool {
-        self.race.is_some()
-    }
-
-    fn sys(&mut self, text: String) {
-        self.chat.push(ChatLine { seat: None, name: String::new(), text, sys: true });
-        if self.chat.len() > MAX_CHAT {
-            self.chat.remove(0);
-        }
-    }
-
-    pub fn push_chat(&mut self, seat: Option<usize>, text: &str) {
-        let text: String = text.trim().chars().take(300).collect();
-        if text.is_empty() {
-            return;
-        }
-        let name = seat.and_then(|s| self.seats[s].as_ref()).map(|s| s.name.clone()).unwrap_or_else(|| "觀眾".into());
-        self.chat.push(ChatLine { seat, name, text, sys: false });
-        if self.chat.len() > MAX_CHAT {
-            self.chat.remove(0);
-        }
-    }
-
-    fn pick_character(&mut self, wanted: Option<&str>) -> String {
-        match wanted {
-            Some(c) if is_character(c) => c.to_string(),
-            _ => random_character(&mut self.rng, &[]).to_string(),
-        }
-    }
-
-    /// 真人入席，回傳（座位, 重新連線用的 token）。比賽中不能入席（改成觀戰）。
-    pub fn join(&mut self, name: &str, character: Option<&str>) -> Result<(usize, String), String> {
-        if self.playing() {
-            return Err("比賽進行中".into());
-        }
-        let seat = self.seats.iter().position(|s| s.is_none()).ok_or("座位已滿")?;
-        let name: String = name.trim().chars().take(16).collect();
-        let name = if name.is_empty() { format!("玩家{}", seat + 1) } else { name };
-        let token: String = (&mut self.rng).sample_iter(&Alphanumeric).take(24).map(char::from).collect();
-        let character = self.pick_character(character);
-        self.sys(format!("{} 坐到了 {}P", name, seat + 1));
-        self.seats[seat] = Some(Seat { name, character, kind: SeatKind::Human, difficulty: self.settings.difficulty, token: token.clone(), connected: false });
-        Ok((seat, token))
-    }
-
-    pub fn seat_of_token(&self, token: &str) -> Option<usize> {
-        if token.is_empty() {
-            return None;
-        }
-        self.seats.iter().position(|s| s.as_ref().is_some_and(|s| s.kind == SeatKind::Human && s.token == token))
-    }
-
-    pub fn connect(&mut self, seat: usize) {
-        if let Some(s) = self.seats[seat].as_mut() {
-            s.connected = true;
-        }
-    }
-
-    /// 斷線：比賽中就算棄權（自己的跑道在自己的電腦上，接不回來）
-    pub fn disconnect(&mut self, seat: usize) {
-        let Some(s) = self.seats[seat].as_mut() else { return };
-        s.connected = false;
-        let name = s.name.clone();
-        if self.retire(seat) {
-            self.sys(format!("{} 斷線了，這一場先算棄權", name));
-        }
+        Room { lobby: Lobby::new(settings), race: None, ended_now: false }
     }
 
     /// 比賽中的這個座位算棄權；有改到就回傳 true
@@ -248,63 +185,6 @@ impl Room {
         }
     }
 
-    pub fn add_bot(&mut self, seat: Option<usize>, difficulty: Difficulty) -> Result<usize, String> {
-        if self.playing() {
-            return Err("比賽進行中".into());
-        }
-        let seat = match seat {
-            Some(s) if s < MAX_PLAYERS && self.seats[s].is_none() => s,
-            Some(_) => return Err("這個座位有人了".into()),
-            None => self.seats.iter().position(|s| s.is_none()).ok_or("座位已滿")?,
-        };
-        let taken: Vec<String> = self.seats.iter().flatten().map(|s| s.character.clone()).collect();
-        let taken: Vec<&str> = taken.iter().map(|s| s.as_str()).collect();
-        let character = random_character(&mut self.rng, &taken).to_string();
-        self.seats[seat] = Some(Seat {
-            name: format!("電腦（{}）", difficulty.label()),
-            character,
-            kind: SeatKind::Bot,
-            difficulty,
-            token: String::new(),
-            connected: true,
-        });
-        Ok(seat)
-    }
-
-    /// 離開座位（玩家自己離開或房主移除）。比賽中就算棄權。
-    pub fn remove_seat(&mut self, seat: usize) -> Result<(), String> {
-        let Some(s) = self.seats.get(seat).and_then(|s| s.as_ref()) else {
-            return Err("這個座位沒有人".into());
-        };
-        let name = s.name.clone();
-        self.retire(seat);
-        if let Some(race) = self.race.as_mut() {
-            race.entries.retain(|e| e.seat != seat);
-        }
-        self.seats[seat] = None;
-        if self.host_seat == Some(seat) {
-            self.host_seat = None;
-        }
-        self.sys(format!("{} 離開了座位", name));
-        Ok(())
-    }
-
-    pub fn set_character(&mut self, seat: usize, id: &str) -> Result<(), String> {
-        if self.playing() {
-            return Err("比賽進行中不能換角色".into());
-        }
-        if !is_character(id) {
-            return Err("沒有這個角色".into());
-        }
-        let s = self.seats[seat].as_mut().ok_or("你沒有座位")?;
-        s.character = id.to_string();
-        Ok(())
-    }
-
-    pub fn update_settings(&mut self, settings: Settings) {
-        self.settings = Settings { world: settings.world.min(WORLDS - 1), stage: settings.stage.min(STAGES - 1), ..settings };
-    }
-
     /// 真人回報進度
     pub fn report(&mut self, seat: usize, p: Progress) {
         let Some(race) = self.race.as_mut() else { return };
@@ -316,12 +196,34 @@ impl Room {
         e.p = p;
     }
 
+    /// 一起闖關：往下一關（6-8 之後回到 1-1）再出發
+    pub fn next_stage(&mut self) -> Result<(), String> {
+        if self.settings.endless {
+            return Err("無盡模式沒有下一關".into());
+        }
+        let i = (self.settings.world * STAGES + self.settings.stage + 1) % (WORLDS * STAGES);
+        self.settings.world = i / STAGES;
+        self.settings.stage = i % STAGES;
+        self.start()
+    }
+}
+
+impl RoomGame for Room {
+    type Rules = Runners;
+
+    fn lobby(&self) -> &Lobby<Runners> {
+        &self.lobby
+    }
+    fn lobby_mut(&mut self) -> &mut Lobby<Runners> {
+        &mut self.lobby
+    }
+
     /// 開跑：有人的座位都上場
-    pub fn start(&mut self) -> Result<(), String> {
-        let plan = self.settings.plan();
-        let seed: u64 = self.rng.gen();
+    fn start(&mut self) -> Result<(), String> {
+        let plan = self.lobby.settings.plan();
+        let seed: u64 = self.lobby.rng.gen();
         let mut entries = Vec::new();
-        for (i, s) in self.seats.iter().enumerate() {
+        for (i, s) in self.lobby.seats.iter().enumerate() {
             let Some(s) = s else { continue };
             let bot = (s.kind == SeatKind::Bot).then(|| {
                 let mut run = Run::new(plan, &s.character, seed);
@@ -335,27 +237,55 @@ impl Room {
         }
         let coin_total = Run::new(plan, "xiaocui", seed).course.coin_total;
         self.race = Some(Race { plan, seed, t: 0, entries, first_finish: None, results: None, team: None, coin_total });
-        self.sys(if plan == Plan::Endless { "無盡比分，各就各位……".into() } else { "一起闖關，出發！".into() });
+        self.lobby.playing = true;
+        self.lobby.sys(if plan == Plan::Endless { "無盡比分，各就各位……" } else { "一起闖關，出發！" });
         Ok(())
     }
 
-    /// 一起闖關：往下一關（6-8 之後回到 1-1）再出發
-    pub fn next_stage(&mut self) -> Result<(), String> {
-        if self.settings.endless {
-            return Err("無盡模式沒有下一關".into());
-        }
-        let i = (self.settings.world * STAGES + self.settings.stage + 1) % (WORLDS * STAGES);
-        self.settings.world = i / STAGES;
-        self.settings.stage = i % STAGES;
-        self.start()
+    fn reset_to_lobby(&mut self) {
+        self.race = None;
+        self.lobby.playing = false;
     }
 
-    pub fn reset_to_lobby(&mut self) {
-        self.race = None;
+    /// 真人回報的進度（`progress` 訊息）
+    fn input(&mut self, seat: usize, msg: &Value) {
+        if let Ok(p) = serde_json::from_value::<Progress>(msg.clone()) {
+            self.report(seat, p);
+        }
+    }
+
+    fn input_type() -> &'static str {
+        "progress"
+    }
+
+    fn host_command(&mut self, cmd: &str, _msg: &Value) -> Option<Result<(), String>> {
+        (cmd == "next").then(|| self.next_stage())
+    }
+
+    /// 斷線：比賽中就算棄權（各自在自己的電腦上跑，電腦接不了手）
+    fn disconnect(&mut self, seat: usize) {
+        let Some(s) = self.lobby.seats[seat].as_mut() else { return };
+        s.connected = false;
+        let name = s.name.clone();
+        if self.retire(seat) {
+            self.lobby.sys(format!("{} 斷線了，這一場先算棄權", name));
+        }
+    }
+
+    /// 離開座位（玩家自己離開或房主移除）。比賽中就算棄權，座位直接空出來。
+    fn remove_seat(&mut self, seat: usize) -> Result<(), String> {
+        if self.lobby.seats.get(seat).and_then(|s| s.as_ref()).is_none() {
+            return Err("這個座位沒有人".into());
+        }
+        self.retire(seat);
+        if let Some(race) = self.race.as_mut() {
+            race.entries.retain(|e| e.seat != seat);
+        }
+        self.lobby.vacate(seat).map(|_| ())
     }
 
     /// 前進一個影格。要送比賽影格的時候回傳 true。
-    pub fn tick(&mut self) -> bool {
+    fn tick(&mut self) -> bool {
         let Some(race) = self.race.as_mut() else { return false };
         race.t += 1;
         if race.results.is_none() {
@@ -407,52 +337,25 @@ impl Room {
                 if race.plan != Plan::Endless {
                     race.team = Some(team_result(race));
                 }
-                let results = rank(race, &self.seats);
+                let results = rank(race, &self.lobby.seats);
                 let winner = results.first().and_then(|r| r["name"].as_str()).unwrap_or("").to_string();
                 race.results = Some(results);
                 self.ended_now = true;
-                self.sys(format!("比賽結束！第一名：{}", winner));
+                self.lobby.sys(format!("比賽結束！第一名：{}", winner));
             }
         }
         self.race.as_ref().is_some_and(|r| r.t % FRAME_EVERY == 0 || r.t == 1)
     }
 
-    /// 大廳／房間資訊（有變動時送）
-    pub fn view(&self, you: Option<usize>) -> Value {
-        let seats: Vec<Value> = self
-            .seats
-            .iter()
-            .map(|s| {
-                s.as_ref().map_or(Value::Null, |s| {
-                    json!({
-                        "name": s.name,
-                        "character": s.character,
-                        "kind": s.kind,
-                        "difficulty": s.difficulty,
-                        "connected": s.connected,
-                    })
-                })
-            })
-            .collect();
-        json!({
-            "phase": if self.playing() { "playing" } else { "lobby" },
-            "seats": seats,
-            "host_seat": self.host_seat,
-            "you": you,
-            "settings": self.settings,
-            "chat": self.chat,
-        })
-    }
-
     /// 比賽影格：大家的進度
-    pub fn frame(&self) -> Option<Value> {
+    fn frame(&self) -> Option<Value> {
         let race = self.race.as_ref()?;
         let team_coins: u32 = race.entries.iter().map(|e| e.p.coins).sum();
         let runners: Vec<Value> = race
             .entries
             .iter()
             .map(|e| {
-                let s = self.seats[e.seat].as_ref();
+                let s = self.lobby.seats[e.seat].as_ref();
                 json!({
                     "seat": e.seat,
                     "name": s.map(|s| s.name.as_str()).unwrap_or(""),
@@ -475,6 +378,10 @@ impl Room {
             "team": race.team,
             "revive_coins": REVIVE_COINS,
         }))
+    }
+
+    fn just_ended(&mut self) -> bool {
+        std::mem::take(&mut self.ended_now)
     }
 }
 
@@ -516,7 +423,7 @@ pub fn progress_of(run: &Run) -> Progress {
 }
 
 /// 名次（比賽結束時）
-fn rank(race: &Race, seats: &[Option<Seat>; MAX_PLAYERS]) -> Vec<Value> {
+fn rank(race: &Race, seats: &[Option<Seat<()>>]) -> Vec<Value> {
     // 比分數：分數高的贏；一樣高的話先過終點的、再來跑得遠的在前面
     let mut order: Vec<&Entry> = race.entries.iter().collect();
     order.sort_by_key(|e| (std::cmp::Reverse(e.p.score), e.p.fin.unwrap_or(u32::MAX), std::cmp::Reverse(e.p.meters)));

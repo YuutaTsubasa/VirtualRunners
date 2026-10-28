@@ -10,11 +10,10 @@
 
 use runner_core::ai::{Ai, Difficulty};
 use runner_core::course::Plan;
-use runner_core::protocol::{self, Conn};
 use runner_core::room::{progress_of, Room};
 use runner_core::run::{Input, Phase, Run};
-use serde_json::{json, Value};
-use std::collections::BTreeMap;
+use serde_json::Value;
+use virtual_room::host;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -104,72 +103,42 @@ fn parse_plan(v: &Value) -> Option<Plan> {
     }
 }
 
-/// 線上房間：跟區網伺服器（src-tauri/src/server.rs）一樣的房間與訊息，只是不碰網路。
+/// 線上房間：跟區網伺服器（VirtualCore 的 virtual-lan）一樣的房間與訊息，只是不碰網路。
 /// 連線用數字 id（0 是房主自己），JS 把收到的 JSON 交給 `message()`，
 /// 每格呼叫 `tick()` 拿影格，再用 `drain()` 拿要送給各連線的訊息。
+/// 內容在 VirtualCore 的 virtual-room（`host::HostRoom`），這裡只是給 JS 用的外殼。
 #[wasm_bindgen]
-pub struct HostRoom {
-    room: Room,
-    host_key: String,
-    conns: BTreeMap<u32, Conn>,
-    outbox: Vec<Value>,
-    /// 大廳資訊有變，下次 drain() 要送給每個人
-    dirty: bool,
-}
+pub struct HostRoom(host::HostRoom<Room>);
 
 #[wasm_bindgen]
 impl HostRoom {
     #[wasm_bindgen(constructor)]
     pub fn new(host_key: &str) -> HostRoom {
-        HostRoom { room: Room::default(), host_key: host_key.into(), conns: BTreeMap::new(), outbox: Vec::new(), dirty: false }
+        HostRoom(host::HostRoom::new(Room::default(), host_key))
     }
 
     pub fn connect(&mut self, id: u32) {
-        self.conns.insert(id, Conn::default());
+        self.0.connect(id);
     }
 
     /// 連線中斷：比賽中算棄權，拿 token 重新連上就拿回座位
     pub fn disconnect(&mut self, id: u32) {
-        if let Some(mut conn) = self.conns.remove(&id) {
-            self.dirty |= protocol::drop_conn(&mut self.room, &mut conn);
-        }
+        self.0.disconnect(id);
     }
 
     /// 收到 id 傳來的一則訊息（JSON 文字）
     pub fn message(&mut self, id: u32, text: &str) {
-        let Some(conn) = self.conns.get_mut(&id) else { return };
-        let v: Value = serde_json::from_str(text).unwrap_or(Value::Null);
-        let (replies, changed) = protocol::handle(&mut self.room, &self.host_key, conn, &v);
-        for r in replies {
-            self.outbox.push(json!({"to": id, "msg": r}));
-        }
-        self.dirty |= changed;
-        // 跟伺服器一樣：除了進度回報，其他訊息都回一份大廳資訊
-        if conn.hello && v.get("type").and_then(|x| x.as_str()) != Some("progress") && !changed {
-            self.outbox.push(json!({"to": id, "msg": protocol::room_message(&self.room, conn)}));
-        }
+        self.0.message(id, text);
     }
 
-    /// 前進一格；要送比賽影格時回傳影格（JSON 文字），否則 undefined
+    /// 前進一格；比賽中回傳這一格的比賽狀態（JSON 文字），否則 undefined
     pub fn tick(&mut self) -> Option<String> {
-        let send = self.room.tick();
-        self.dirty |= protocol::just_ended(&mut self.room);
-        if !send {
-            return None;
-        }
-        self.room.frame().map(|f| f.to_string())
+        self.0.tick()
     }
 
     /// 取出要送的訊息：JSON 陣列 [{ to: 連線 id, msg }]
     pub fn drain(&mut self) -> String {
-        if std::mem::take(&mut self.dirty) {
-            for (id, conn) in &self.conns {
-                if conn.hello {
-                    self.outbox.push(json!({"to": id, "msg": protocol::room_message(&self.room, conn)}));
-                }
-            }
-        }
-        Value::Array(std::mem::take(&mut self.outbox)).to_string()
+        self.0.drain()
     }
 }
 

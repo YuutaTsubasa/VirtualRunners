@@ -157,6 +157,7 @@ dependencies = [
  "rand",
  "serde",
  "serde_json",
+ "virtual-room",
 ]
 
 [[package]]
@@ -165,6 +166,7 @@ version = "0.1.0"
 dependencies = [
  "runner-core",
  "serde_json",
+ "virtual-room",
  "wasm-bindgen",
 ]
 
@@ -250,6 +252,17 @@ name = "unicode-ident"
 version = "1.0.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
+
+[[package]]
+name = "virtual-room"
+version = "0.6.0"
+source = "git+https://github.com/YuutaTsubasa/VirtualCore?tag=v0.6.0#9a5f66aa89cc4234a34c0d7cd456bad57cb2b5ee"
+dependencies = [
+ "getrandom",
+ "rand",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "wasi"

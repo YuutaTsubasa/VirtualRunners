@@ -664,7 +664,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -823,7 +823,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2675,6 +2675,7 @@ dependencies = [
  "rand 0.8.8",
  "serde",
  "serde_json",
+ "virtual-room",
 ]
 
 [[package]]
@@ -3982,19 +3983,41 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
-name = "virtual-runners"
-version = "0.1.0"
+name = "virtual-lan"
+version = "0.6.0"
+source = "git+https://github.com/YuutaTsubasa/VirtualCore?tag=v0.6.0#9a5f66aa89cc4234a34c0d7cd456bad57cb2b5ee"
 dependencies = [
  "axum",
  "futures-util",
  "rand 0.8.8",
+ "serde_json",
+ "tokio",
+ "tower-http",
+ "virtual-room",
+]
+
+[[package]]
+name = "virtual-room"
+version = "0.6.0"
+source = "git+https://github.com/YuutaTsubasa/VirtualCore?tag=v0.6.0#9a5f66aa89cc4234a34c0d7cd456bad57cb2b5ee"
+dependencies = [
+ "getrandom 0.2.17",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "virtual-runners"
+version = "0.1.0"
+dependencies = [
  "runner-core",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tokio",
- "tower-http",
+ "virtual-lan",
 ]
 
 [[package]]
@@ -4244,7 +4267,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4604,7 +4627,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d6f32a0ff4a9f6f01231eb2059cc85479330739333e0e58cadf03b6af2cca10"
 dependencies = [
  "cfg-if",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

@@ -97,7 +97,7 @@ cargo test --manifest-path crates/runner-core/Cargo.toml --release balance -- --
 
 ## 連線
 
-房間與訊息的處理（`crates/runner-core/src/protocol.rs`）同一份 Rust 程式給區網伺服器（Tauri 內建）與線上房間（WASM，在房主瀏覽器的 Web Worker 裡）用。房間不跑大家的比賽，只做：大廳、聊天、開跑（發種子）、跑電腦對手、收集每個人的進度並每秒廣播 15 次、比賽結束排名。線上房間用 WebRTC，可靠通道走大廳與指令，不可靠通道走進度與比賽影格。
+房間與訊息的處理（座位、聊天、連線訊息在 VirtualCore 的 `virtual-room`，跑跑樂自己的部分在 `crates/runner-core/src/room.rs`）同一份 Rust 程式給區網伺服器（Tauri 內建）與線上房間（WASM，在房主瀏覽器的 Web Worker 裡）用。房間不跑大家的比賽，只做：大廳、聊天、開跑（發種子）、跑電腦對手、收集每個人的進度並每秒廣播 15 次、比賽結束排名。線上房間用 WebRTC，可靠通道走大廳與指令，不可靠通道走進度與比賽影格。
 
 斷線＝這一場棄權（自己的跑道在自己的電腦上，接不回來），重連會拿回座位、下一場照常。
 
@@ -126,11 +126,11 @@ crates/runner-core/       遊戲引擎（Rust）
   src/course.rs            跑道：六大關 × 8 小關、無盡模式；一段一段生，同一個種子一定一樣（自己寫的 splitmix 亂數）
   src/run.rs               一個跑者跑一條跑道的模擬：跳／二段跳／滑／衝刺／空中追擊、敵人、機關、魔王、道具
   src/ai.rs                電腦跑者：複製一份試跑幾種按法，挑不會受傷的（也拿來測每一關都過得去）
-  src/room.rs              房間：八個座位、電腦隊友、收進度、靈魂救援、隊伍星星、分數排名
-  src/protocol.rs          連線訊息（區網伺服器與線上房間共用）
+  src/room.rs              房間（實作 virtual-room 的 RoomGame）：收進度、電腦對手、靈魂救援、隊伍星星、分數排名、斷線算棄權
+  src/protocol.rs          連線訊息（轉出 virtual-room 的，區網伺服器與線上房間共用）
   src/characters.rs        角色的小能力
 crates/runner-wasm/       WebAssembly：自己的跑道（LocalRun）與線上房主（HostRoom）
-src-tauri/               Tauri v2 App＋區網伺服器（axum，/ws）
+src-tauri/               Tauri v2 App＋區網伺服器（VirtualCore 的 virtual-lan，/ws）
 src/
   App.svelte               畫面切換（標題→模式→選角→關卡地圖→跑→結果；連線：大廳→比賽→名次）
   lib/engine.js            主迴圈（自己的跑道＋回報進度）
@@ -146,9 +146,10 @@ src/
 - `virtual-core/audio/synth.js`、`audio/music.js`：PC-98 FM 音源與曲子播放器（曲目是本作的 `src/lib/audio/songs.js`）
 - `virtual-core/net/p2p.js`、`net/site.js`：線上房間的 WebRTC 傳輸、房號與分享連結（本作的網址在 `src/lib/site.js`）
 - `workers/signal/`：配對服務
+- Rust `crates/virtual-room`（座位、房主、聊天、連線訊息、線上房主）與 `crates/virtual-lan`（區網伺服器）：`Cargo.toml` 用 git tag 引用
 - `.github/workflows/build-apps.yml`、`pages.yml`：這個 repo 的兩個 workflow 只是呼叫它們
 
-本機要同時改 VirtualCore 時：`npm install ../VirtualCore` 暫時換成本機版本（不要 commit 這個改動）。
+本機要同時改 VirtualCore 時：`npm install ../VirtualCore` 暫時換成本機版本；Rust 在 `.cargo/config.toml` 寫 `[patch."https://github.com/YuutaTsubasa/VirtualCore"]` 指到 `../VirtualCore/crates/…`（兩者都不要 commit）。
 
 ## 美術
 
