@@ -1,5 +1,5 @@
 <script>
-  import { keyboardEdit, setControlValue } from '../input-controls.js';
+  import { keyboardEdit, setControlValue } from 'virtual-core/input/controls.js';
   import { t } from '../i18n.svelte.js';
 
   let dialog;
