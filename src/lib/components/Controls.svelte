@@ -15,7 +15,7 @@
     steppedValue,
     setControlValue,
     nextSelectIndex,
-  } from '../input-controls.js';
+  } from 'virtual-core/input/controls.js';
   import { setInputKind } from '../ui.svelte.js';
   import { unlockHidden } from '../game/characters.js';
   import { toast } from '../net.svelte.js';
@@ -192,7 +192,7 @@
       }
       const connected = new Set();
       for (const pad of pads) {
-        if (!pad?.connected || (pad.mapping && pad.mapping !== 'standard')) continue;
+        if (!pad?.connected) continue;
         connected.add(pad.index);
         const result = gamepadCommands(pad, snapshots.get(pad.index), now);
         snapshots.set(pad.index, result.snapshot);
@@ -211,6 +211,15 @@
       frame = requestAnimationFrame(poll);
     }
     const pointerdown = (e) => setInputKind(e.pointerType === 'touch' ? 'touch' : 'pointer');
+    // 手把接上／拔掉時提示一下（接了卻沒出現這個訊息，就是瀏覽器沒把手把交給網頁）
+    const padName = (pad) => (pad.id || '').replace(/\s*\(.*$/, '').trim() || t('手把');
+    const padConnected = (e) => {
+      setInputKind('pad');
+      toast(t('偵測到手把：{name}', { name: padName(e.gamepad) }), 'ok');
+    };
+    const padDisconnected = (e) => toast(t('手把已中斷：{name}', { name: padName(e.gamepad) }));
+    window.addEventListener('gamepadconnected', padConnected);
+    window.addEventListener('gamepaddisconnected', padDisconnected);
     window.addEventListener('keydown', keydown, true);
     window.addEventListener('keyup', keyup, true);
     window.addEventListener('pointerdown', pointerdown, true);
@@ -223,6 +232,8 @@
       window.removeEventListener('keydown', keydown, true);
       window.removeEventListener('keyup', keyup, true);
       window.removeEventListener('pointerdown', pointerdown, true);
+      window.removeEventListener('gamepadconnected', padConnected);
+      window.removeEventListener('gamepaddisconnected', padDisconnected);
       window.removeEventListener('touchstart', touchstart, true);
       window.removeEventListener('touchend', touchend, true);
     };

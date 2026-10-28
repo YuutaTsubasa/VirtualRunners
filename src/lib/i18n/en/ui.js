@@ -264,4 +264,6 @@ export default {
   清除: 'Clear',
   套用輸入: 'Apply',
   '請輸入有效的數字。': 'Please enter a valid number.',
+  '偵測到手把：{name}': 'Controller detected: {name}',
+  '手把已中斷：{name}': 'Controller disconnected: {name}',
 };
