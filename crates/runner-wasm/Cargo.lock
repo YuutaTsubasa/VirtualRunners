@@ -256,7 +256,7 @@ checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
 [[package]]
 name = "virtual-room"
 version = "0.6.0"
-source = "git+https://github.com/YuutaTsubasa/VirtualCore?branch=claude%2Fforfeit-hooks#231c5d3964341d7f55b77b7ae9522e8f2793fce0"
+source = "git+https://github.com/YuutaTsubasa/VirtualCore?tag=v0.6.0#9a5f66aa89cc4234a34c0d7cd456bad57cb2b5ee"
 dependencies = [
  "getrandom",
  "rand",

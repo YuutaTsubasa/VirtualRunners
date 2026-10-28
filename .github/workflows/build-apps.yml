@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build:
-    uses: YuutaTsubasa/VirtualCore/.github/workflows/build-apps.yml@v0.5.0
+    uses: YuutaTsubasa/VirtualCore/.github/workflows/build-apps.yml@v0.6.0
     # Android 簽章用的 ANDROID_KEYSTORE_BASE64 等 secrets
     secrets: inherit
     with:

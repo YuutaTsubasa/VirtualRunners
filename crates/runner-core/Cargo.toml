@@ -9,7 +9,7 @@ rust-version = "1.89"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # 座位、房主、聊天、連線訊息（Virtual 系列共用）
-virtual-room = { git = "https://github.com/YuutaTsubasa/VirtualCore", branch = "claude/forfeit-hooks" }
+virtual-room = { git = "https://github.com/YuutaTsubasa/VirtualCore", tag = "v0.6.0" }
 rand = { version = "0.8", features = ["small_rng"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
