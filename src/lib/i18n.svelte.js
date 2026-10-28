@@ -3,75 +3,48 @@
 //   t('{name} 獲勝！', { name })        → '{name} wins!'
 // 翻譯放在 src/lib/i18n/<語言>/*.js（各檔匯出一個 { 原文: 譯文 } 物件，會自動合併）。
 // 找不到翻譯就顯示原文，所以漏翻只會顯示中文，不會壞掉（tests/i18n.test.js 會檢查有沒有漏）。
+// 語言偵測、字典合併、代入參數這些共用的部分在 VirtualCore（virtual-core/i18n/lang.js）。
 //
 // 房間伺服器（Rust，crates/runner-core）送來的系統訊息、錯誤、電腦玩家的名字是中文，
 // 由 serverText()、displayName() 在畫面上翻，伺服器與舊版 App 不用改。
 
+import {
+  LANGUAGES,
+  isLang,
+  htmlLangOf,
+  mergeDicts,
+  loadLang,
+  saveLang,
+  translate,
+  matchServerText,
+  applyDocument,
+} from 'virtual-core/i18n/lang.js';
+
 const STORAGE_KEY = 'vr_lang';
 
-export const LANGUAGES = [
-  { id: 'zh-TW', name: '中文', htmlLang: 'zh-Hant-TW' },
-  { id: 'en', name: 'English', htmlLang: 'en' },
-  { id: 'ja', name: '日本語', htmlLang: 'ja' },
-];
+export { LANGUAGES };
 
-const modules = import.meta.glob('./i18n/*/*.js', { eager: true });
-const DICTS = {};
-for (const [path, mod] of Object.entries(modules)) {
-  const lang = path.split('/')[2];
-  DICTS[lang] = { ...(DICTS[lang] ?? {}), ...mod.default };
-}
+const DICTS = mergeDicts(import.meta.glob('./i18n/*/*.js', { eager: true }));
 
-const isLang = (id) => LANGUAGES.some((l) => l.id === id);
+export const i18n = $state({ lang: loadLang(STORAGE_KEY) });
 
-function initial() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (isLang(saved)) return saved;
-  } catch {
-    // 讀不到就看瀏覽器
-  }
-  // 沒選過就看瀏覽器：第一個認得的語言（中文任何地區都用中文），都不認得就用英文
-  const nav = typeof navigator !== 'undefined' ? (navigator.languages ?? [navigator.language]) : [];
-  if (nav.length === 0) return 'zh-TW';
-  for (const l of nav) {
-    if (/^zh/i.test(l ?? '')) return 'zh-TW';
-    if (/^ja/i.test(l ?? '')) return 'ja';
-    if (/^en/i.test(l ?? '')) return 'en';
-  }
-  return 'en';
-}
-
-export const i18n = $state({ lang: initial() });
-
-function apply() {
-  if (typeof document === 'undefined') return;
-  document.documentElement.lang = htmlLang();
-  document.title = t('虛擬跑跑樂');
-}
+const apply = () => applyDocument(i18n.lang, t('虛擬跑跑樂'));
 
 export function setLang(id) {
   if (!isLang(id)) return;
   i18n.lang = id;
   apply();
-  try {
-    localStorage.setItem(STORAGE_KEY, id);
-  } catch {
-    // 存不了就算了
-  }
+  saveLang(STORAGE_KEY, id);
 }
 
-export const htmlLang = () => LANGUAGES.find((l) => l.id === i18n.lang)?.htmlLang ?? 'zh-Hant-TW';
-apply();
+export const htmlLang = () => htmlLangOf(i18n.lang);
 
 /** 翻譯一段原文；{name} 之類的位置用 params 代入 */
 export function t(text, params) {
-  if (text == null) return '';
-  const dict = DICTS[i18n.lang];
-  let out = (dict && dict[text]) ?? text;
-  if (params) out = out.replace(/\{(\w+)\}/g, (m, k) => params[k] ?? m);
-  return out;
+  return translate(DICTS[i18n.lang], text, params);
 }
+
+apply();
 
 /** 現在是不是中文介面（有些地方中文、外文排法不一樣，例如字距） */
 export const isZh = () => i18n.lang === 'zh-TW';
@@ -129,12 +102,5 @@ const SERVER_PATTERNS = [
 
 /** 翻譯伺服器送來的系統訊息或錯誤 */
 export function serverText(text) {
-  if (!text) return text;
-  const dict = DICTS[i18n.lang];
-  if (dict?.[text]) return dict[text];
-  for (const [re, fn] of SERVER_PATTERNS) {
-    const m = re.exec(text);
-    if (m) return fn(m);
-  }
-  return text;
+  return matchServerText(DICTS[i18n.lang], SERVER_PATTERNS, text);
 }
