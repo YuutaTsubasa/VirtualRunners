@@ -198,11 +198,11 @@
   }
   .who {
     background: var(--teal);
-    color: #fff;
+    color: var(--on-dark);
     font-weight: 900;
     font-size: 2.6cqh;
     padding: 0.2cqh 2.6cqh;
-    border: 0.3cqh solid #fff;
+    border: 0.3cqh solid var(--paper-white);
     border-radius: 999px;
     margin-bottom: -1cqh;
     z-index: 1;
@@ -225,7 +225,7 @@
     animation: pop 0.25s ease-out;
   }
   .caption {
-    background: #fff;
+    background: var(--paper-white);
     border: var(--line) solid var(--sky-line);
     border-radius: 999px;
     color: var(--teal);

@@ -194,7 +194,7 @@
     padding: 0.5cqh 0.5cqh 0.4cqh;
     border: var(--line) solid var(--sky-line);
     border-radius: 1.6cqh;
-    background: #fff;
+    background: var(--paper-white);
     font: inherit;
     color: var(--navy);
     box-shadow: var(--soft-shadow);
@@ -243,7 +243,7 @@
   .veil {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(236, 248, 252, 0) 30%, rgba(236, 248, 252, 0.45));
+    background: linear-gradient(180deg, transparent 30%, color-mix(in srgb, var(--sky-light) 45%, transparent));
   }
   .line {
     position: absolute;
@@ -253,11 +253,11 @@
   }
   .road {
     fill: none;
-    stroke: #fff;
+    stroke: var(--paper-white);
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
     stroke-width: 2.2cqh;
-    filter: drop-shadow(0 0.4cqh 0 rgba(17, 111, 149, 0.35));
+    filter: drop-shadow(0 0.4cqh 0 color-mix(in srgb, var(--teal) 35%, transparent));
   }
   .dash {
     fill: none;
@@ -279,7 +279,7 @@
     height: 9cqh;
     border-radius: 50%;
     border: 0.45cqh solid var(--teal);
-    background: #fff;
+    background: var(--paper-white);
     color: var(--teal);
     font: inherit;
     font-weight: 900;
@@ -301,10 +301,10 @@
     box-shadow: 0 0.5cqh 0 var(--gold-deep);
   }
   .node.locked {
-    background: #dfe8ec;
-    border-color: #9bb5c2;
-    color: #7f98a5;
-    box-shadow: 0 0.5cqh 0 #9bb5c2;
+    background: var(--muted-bg);
+    border-color: var(--muted-line);
+    color: var(--muted-text);
+    box-shadow: 0 0.5cqh 0 var(--muted-line);
     cursor: not-allowed;
   }
   .node.locked img {
@@ -321,7 +321,7 @@
     top: -3.4cqh;
     font-size: 3.6cqh;
     color: var(--red);
-    -webkit-text-stroke: 0.3cqh #fff;
+    -webkit-text-stroke: 0.3cqh var(--paper-white);
     paint-order: stroke fill;
   }
   .mini-stars {
@@ -330,7 +330,7 @@
     font-size: 2.2cqh;
     letter-spacing: -0.1em;
     color: var(--gold-deep);
-    -webkit-text-stroke: 0.25cqh #fff;
+    -webkit-text-stroke: 0.25cqh var(--paper-white);
     paint-order: stroke fill;
     white-space: nowrap;
   }
@@ -391,8 +391,8 @@
   }
   .stars i {
     font-style: normal;
-    color: #dfe8ec;
-    -webkit-text-stroke: 0.2cqh #9bb5c2;
+    color: var(--muted-bg);
+    -webkit-text-stroke: 0.2cqh var(--muted-line);
   }
   .stars i.on {
     color: var(--gold);

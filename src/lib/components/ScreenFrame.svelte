@@ -103,7 +103,7 @@
     letter-spacing: 0.3em;
     white-space: nowrap;
     color: var(--teal);
-    background: #fff;
+    background: var(--paper-white);
     border-radius: 999px;
     padding: 0.4cqh 2cqh;
     margin-top: 1.6cqh;

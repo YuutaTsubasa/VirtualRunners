@@ -78,7 +78,7 @@
     min-height: 0;
     display: grid;
     place-items: center;
-    background: linear-gradient(#3f6577, #163a4b);
+    background: linear-gradient(var(--navy-soft), var(--navy));
   }
   .lock img {
     width: auto;

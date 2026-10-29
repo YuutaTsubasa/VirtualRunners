@@ -287,7 +287,7 @@
     top: -0.4cqh;
     z-index: 2;
     background: var(--c);
-    color: #fff;
+    color: var(--on-dark);
     font-size: 2.6cqh;
     font-weight: 900;
     font-style: italic;

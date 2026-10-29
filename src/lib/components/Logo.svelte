@@ -50,7 +50,7 @@
   }
   .ch {
     font-size: 24cqw;
-    -webkit-text-stroke: 3.2cqw #fff;
+    -webkit-text-stroke: 3.2cqw var(--paper-white);
     paint-order: stroke fill;
     letter-spacing: -0.02em;
   }
