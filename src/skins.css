@@ -505,12 +505,12 @@
 
 /* ===== 頁面底（.paper-bg）：90 年代版是晴空，其他畫風換成自己的底，不要整片藍天白雲 ===== */
 :root[data-style='pc98'] .paper-bg {
-  /* 深靛藍＋兩色交錯的網點（PC-98 的半色調） */
-  background: repeating-conic-gradient(#1b1838 0 25%, #111329 0 50%) 0 0 / 0.8cqh 0.8cqh;
+  /* 米色紙＋兩色交錯的網點（PC-98 的半色調）；頁面上的字是深色，底要亮 */
+  background: repeating-conic-gradient(#efd9bd 0 25%, #fae8cd 0 50%) 0 0 / 0.8cqh 0.8cqh;
 }
 :root[data-style='msdos'] .paper-bg {
-  /* DOS 桌面的藍底＋格紋網點 */
-  background: repeating-conic-gradient(#1c3068 0 25%, #243c7a 0 50%) 0 0 / 0.8cqh 0.8cqh;
+  /* DOS 視窗的淺灰＋格紋網點；頁面上的字是深色，底要亮 */
+  background: repeating-conic-gradient(#b4b8c4 0 25%, #c8ccd4 0 50%) 0 0 / 0.8cqh 0.8cqh;
 }
 :root[data-style='gameboy'] .paper-bg {
   /* 四色裡的兩個淺綠交錯 */
