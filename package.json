@@ -1,7 +1,7 @@
 {
   "name": "virtual-runners",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "build:wasm": "wasm-pack build crates/runner-wasm --target web --release --out-dir ../../src/lib/local/pkg --no-pack",
