@@ -1,6 +1,6 @@
 [package]
 name = "virtual-runners"
-version = "0.1.0"
+version = "0.1.1"
 description = "虛擬跑跑樂：虛擬台麻館的角色們一起闖六大關的清版動作遊戲"
 edition = "2021"
 rust-version = "1.89"

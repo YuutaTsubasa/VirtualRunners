@@ -1,6 +1,6 @@
 [package]
 name = "runner-wasm"
-version = "0.1.0"
+version = "0.1.1"
 description = "虛擬跑跑樂的網頁版引擎：把跑道與房間包成 WebAssembly，在瀏覽器裡跑"
 edition = "2021"
 rust-version = "1.89"

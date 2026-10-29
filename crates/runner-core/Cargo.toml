@@ -1,6 +1,6 @@
 [package]
 name = "runner-core"
-version = "0.1.0"
+version = "0.1.1"
 description = "虛擬跑跑樂的遊戲引擎：跑道、跑者、電腦對手與競速房間"
 edition = "2021"
 rust-version = "1.89"
