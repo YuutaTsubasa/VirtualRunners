@@ -27,6 +27,10 @@
   --on-dark: #ffffff;
   --paper-white: #ffffff;
   --hud-portrait: #23b5e8;
+  /* 還沒解鎖、沒拿到的東西（關卡節點、星星）：灰藍 */
+  --muted-bg: #dfe8ec;
+  --muted-line: #9bb5c2;
+  --muted-text: #7f98a5;
   --font: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', 'Heiti TC', sans-serif;
   /* 輪廓粗細與柔和短陰影（1920×1080 設計稿的 2–3 px／4–6 px） */
   --line: 0.28cqh;
@@ -484,6 +488,15 @@ input:focus { border-color: var(--teal); box-shadow: 0 0 0 0.3cqh var(--sky-line
   --stripe: #9b80b4;
   --accent: #6fd3c1;
   --font: 'MingLiU', '細明體', 'MS Gothic', 'Cascadia Mono', monospace;
+  /* 天空藍（路線虛線、跑者背後的速度線、半身像底）換成這個畫風的顏色 */
+  --sky: #9b80b4;
+  --sky-light: #fae8cd;
+  --sky-line: #9b80b4;
+  --teal: #5b4f86;
+  --hud-portrait: #9b80b4;
+  --muted-bg: #3a3358;
+  --muted-line: #5b4f86;
+  --muted-text: #9b80b4;
 }
 :root[data-style='msdos'] {
   /* 背景 #101828、面板 #243c7a、文字 #f6f1d8、選取 #ffd23f、邊框 #9ca8b8 */
@@ -497,6 +510,15 @@ input:focus { border-color: var(--teal); box-shadow: 0 0 0 0.3cqh var(--sky-line
   --stripe: #9ca8b8;
   --accent: #ff5555;
   --font: 'Cascadia Mono', 'Consolas', 'MingLiU', '細明體', monospace;
+  /* 天空藍（路線虛線、跑者背後的速度線、半身像底）換成這個畫風的顏色 */
+  --sky: #55ffff;
+  --sky-light: #f6f1d8;
+  --sky-line: #9ca8b8;
+  --teal: #00aaaa;
+  --hud-portrait: #00aaaa;
+  --muted-bg: #aaaaaa;
+  --muted-line: #555555;
+  --muted-text: #555555;
 }
 :root[data-style='taiwan-print'] {
   /* 墨藍 #102044、青綠 #128C96、朱紅 #E94B32、暖紙 #FFF1C2、金黃 #F6C334 */
@@ -511,6 +533,16 @@ input:focus { border-color: var(--teal); box-shadow: 0 0 0 0.3cqh var(--sky-line
   --accent: #e94b32;
   --sea: #128c96;
   --font: 'DFKai-SB', '標楷體', 'Kaiti TC', 'Microsoft JhengHei', serif;
+  /* 天空藍（路線虛線、跑者背後的速度線、半身像底）換成這個畫風的顏色 */
+  --paper-white: #fff8dc;
+  --sky: #128c96;
+  --sky-light: #fff1c2;
+  --sky-line: #128c96;
+  --teal: #128c96;
+  --hud-portrait: #128c96;
+  --muted-bg: #e8d9a8;
+  --muted-line: #b8a878;
+  --muted-text: #8a7a50;
 }
 :root[data-style='gameboy'] {
   /* 最深 #0f380f、深 #306230、中亮 #8bac0f、最亮 #9bbc0f（只用這四色） */
@@ -530,6 +562,15 @@ input:focus { border-color: var(--teal); box-shadow: 0 0 0 0.3cqh var(--sky-line
   --paper-white: #9bbc0f;
   --hud-portrait: #8bac0f;
   --font: 'MingLiU', '細明體', monospace;
+  /* 天空藍（路線虛線、跑者背後的速度線、半身像底）換成這個畫風的顏色 */
+  --sky: #306230;
+  --sky-light: #9bbc0f;
+  --sky-line: #306230;
+  --teal: #306230;
+  --teal-soft: #9bbc0f;
+  --muted-bg: #8bac0f;
+  --muted-line: #306230;
+  --muted-text: #306230;
 }
 :root[data-style='modern-paint'] {
   /* 深藍 #15458F、天空藍 #3EA8EF、奶油 #FFF3D6、金色 #F4C558、墨色 #173351 */
@@ -542,6 +583,14 @@ input:focus { border-color: var(--teal); box-shadow: 0 0 0 0.3cqh var(--sky-line
   --gold-line: #3ea8ef;
   --stripe: #bfe3fa;
   --accent: #ff8fa3;
+  /* 天空藍（路線虛線、跑者背後的速度線、半身像底）換成這個畫風的顏色 */
+  --sky: #3ea8ef;
+  --sky-line: #bfe3fa;
+  --teal: #15458f;
+  --hud-portrait: #3ea8ef;
+  --muted-bg: #dde7f0;
+  --muted-line: #9fb7cf;
+  --muted-text: #7f93a8;
 }
 /* 像素風格：直角、不要圓角與模糊陰影 */
 :root:is([data-style='pc98'], [data-style='msdos'], [data-style='gameboy']) :is(.panel, .card, input, select.vsel, .toast) {

@@ -79,7 +79,7 @@
     flex-direction: row;
     justify-content: center;
     gap: 2cqw;
-    background: linear-gradient(90deg, rgba(35, 181, 232, 0.1), rgba(35, 120, 165, 0.45));
+    background: linear-gradient(90deg, color-mix(in srgb, var(--sky) 10%, transparent), color-mix(in srgb, var(--teal) 45%, transparent));
   }
   .pose {
     align-self: flex-end;
@@ -130,8 +130,8 @@
     line-height: 1;
   }
   .stars span {
-    color: #dfe8ec;
-    -webkit-text-stroke: 0.35cqh #9bb5c2;
+    color: var(--muted-bg);
+    -webkit-text-stroke: 0.35cqh var(--muted-line);
   }
   .stars span.on {
     color: var(--gold);
@@ -181,7 +181,7 @@
     width: 3.4cqh;
     height: 3.4cqh;
     border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%, #ffe68a, var(--gold) 55%, var(--gold-deep));
+    background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--gold) 50%, var(--paper-white)), var(--gold) 55%, var(--gold-deep));
     border: 0.25cqh solid var(--navy);
   }
   .chips {
@@ -193,9 +193,9 @@
     align-items: center;
     gap: 0.6cqh;
     padding: 0.3cqh 1.4cqh 0.3cqh 0.4cqh;
-    border: 0.25cqh solid #9bb5c2;
+    border: 0.25cqh solid var(--muted-line);
     border-radius: 999px;
-    color: #7f98a5;
+    color: var(--muted-text);
     font-weight: 900;
     font-size: 2cqh;
   }
@@ -205,7 +205,7 @@
     width: 2.8cqh;
     height: 2.8cqh;
     border-radius: 50%;
-    background: #dfe8ec;
+    background: var(--muted-bg);
     font-style: normal;
   }
   .chip.ok {
@@ -214,7 +214,7 @@
   }
   .chip.ok i {
     background: var(--ok);
-    color: #fff;
+    color: var(--on-dark);
   }
   .record {
     margin: 0;

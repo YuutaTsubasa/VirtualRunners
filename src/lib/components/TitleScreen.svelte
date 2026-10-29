@@ -138,7 +138,7 @@
     align-items: center;
     gap: 1.4cqw;
     padding: 1.8cqh 2cqw;
-    background: rgba(255, 255, 255, 0.88);
+    background: color-mix(in srgb, var(--paper-white) 88%, transparent);
     border: var(--line) solid var(--sky-line);
     border-radius: 4cqh;
     box-shadow: var(--soft-shadow);

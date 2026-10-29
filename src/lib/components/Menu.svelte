@@ -55,7 +55,7 @@
     margin: 0.6cqh 0;
     border: var(--line) solid var(--sky-line);
     border-radius: 999px;
-    background: #fff;
+    background: var(--paper-white);
     padding: 1.1cqh 2cqh 1.1cqh 7cqh;
     text-align: left;
     font-size: 3.4cqh;

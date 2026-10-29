@@ -502,3 +502,33 @@
     border-width: 0.15cqh;
   }
 }
+
+/* ===== 頁面底（.paper-bg）：90 年代版是晴空，其他畫風換成自己的底，不要整片藍天白雲 ===== */
+:root[data-style='pc98'] .paper-bg {
+  /* 米色紙＋兩色交錯的網點（PC-98 的半色調）；頁面上的字是深色，底要亮 */
+  background: repeating-conic-gradient(#efd9bd 0 25%, #fae8cd 0 50%) 0 0 / 0.8cqh 0.8cqh;
+}
+:root[data-style='msdos'] .paper-bg {
+  /* DOS 視窗的淺灰＋格紋網點；頁面上的字是深色，底要亮 */
+  background: repeating-conic-gradient(#b4b8c4 0 25%, #c8ccd4 0 50%) 0 0 / 0.8cqh 0.8cqh;
+}
+:root[data-style='gameboy'] .paper-bg {
+  /* 四色裡的兩個淺綠交錯 */
+  background: repeating-conic-gradient(#8bac0f 0 25%, #9bbc0f 0 50%) 0 0 / 1cqh 1cqh;
+}
+:root[data-style='taiwan-print'] .paper-bg {
+  /* 舊報紙：米黃紙＋網點 */
+  background: var(--halftone), #f2dfae;
+}
+:root[data-style='modern-paint'] .paper-bg {
+  /* 動漫電影：飽和的藍天漸層＋柔和的雲，比 90 年代版更深更亮 */
+  background:
+    radial-gradient(ellipse 14cqw 4cqh at 14% 20%, rgba(255, 255, 255, 0.85) 40%, transparent 70%),
+    radial-gradient(ellipse 18cqw 5cqh at 80% 28%, rgba(255, 255, 255, 0.75) 40%, transparent 70%),
+    linear-gradient(180deg, #1f6fd1 0%, #4fa8ef 45%, #cfe9fb 100%);
+}
+
+/* Game Boy：畫布（遊戲畫面、選單背景的關卡）照亮度分到四色，程式畫的特效、血條也不會跑出四色以外（濾鏡在 App.svelte，跟虛擬闖天下一樣） */
+:root[data-style='gameboy'] canvas {
+  filter: url(#gb-tones);
+}

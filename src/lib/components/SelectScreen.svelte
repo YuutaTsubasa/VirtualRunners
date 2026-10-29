@@ -116,8 +116,8 @@
     height: 11cqh;
     border-radius: 0 999px 999px 0;
     background:
-      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7) 30%, transparent 31%, transparent 60%, rgba(255, 255, 255, 0.6) 61%, transparent 75%) 0 30% / 100% 0.6cqh no-repeat,
-      linear-gradient(90deg, rgba(35, 181, 232, 0), var(--sky) 40%, #8fdcf7);
+      linear-gradient(90deg, transparent, var(--paper-white) 30%, transparent 31%, transparent 60%, var(--paper-white) 61%, transparent 75%) 0 30% / 100% 0.6cqh no-repeat,
+      linear-gradient(90deg, transparent, var(--sky) 40%, var(--sky-line));
     transform: skewY(-4deg);
   }
   .hero-run {
@@ -179,7 +179,7 @@
     padding: 0.2cqh 1.4cqh;
     border-radius: 999px;
     background: var(--teal);
-    color: #fff;
+    color: var(--on-dark);
     font-weight: 900;
     font-size: 1.9cqh;
   }

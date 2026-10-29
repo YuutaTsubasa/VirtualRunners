@@ -43,7 +43,7 @@
     padding: 0.3cqh 2.4cqh;
     border: 0.25cqh solid var(--teal);
     border-radius: 999px;
-    background: #fff;
+    background: var(--paper-white);
     color: var(--teal);
     font-weight: 900;
     font-size: 2.6cqh;

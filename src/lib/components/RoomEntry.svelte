@@ -298,7 +298,7 @@
     height: 8cqh;
     border-radius: 50%;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-dark);
     display: grid;
     place-items: center;
     font-size: 5.4cqh;
